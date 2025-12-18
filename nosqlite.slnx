@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Nosqlite.csproj" />
+  <Project Path="tests/NosqliteTest.csproj" />
+</Solution>
