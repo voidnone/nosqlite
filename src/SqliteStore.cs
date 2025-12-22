@@ -2,16 +2,23 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.Nosqlite;
 
-public abstract class NosqliteStore(string path)
+public abstract class SqliteStore(string path)
 {
     private string? connectionString;
     private bool initialized = false;
 
-    protected int Execute(string sql)
+    protected int Execute(string sql, IDictionary<string, object>? parameters = null)
     {
         using var connection = OpenConnection();
         using var command = connection.CreateCommand();
         command.CommandText = sql;
+        if (parameters != null)
+        {
+            foreach (var item in parameters)
+            {
+                command.Parameters.AddWithValue(item.Key, item.Value);
+            }
+        }
         return command.ExecuteNonQuery();
     }
 
@@ -44,8 +51,8 @@ public abstract class NosqliteStore(string path)
             {
                 if (initialized == false)
                 {
-                    Initialize();
                     initialized = true;
+                    Initialize();
                 }
             }
         }

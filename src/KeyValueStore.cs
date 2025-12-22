@@ -1,6 +1,6 @@
 namespace VoidNone.Nosqlite;
 
-public class KeyValueStore : NosqliteStore
+public class KeyValueStore : SqliteStore
 {
     public KeyValueStore(string path) : base(path)
     {
@@ -21,13 +21,19 @@ public class KeyValueStore : NosqliteStore
 
     public void Set(string key, string value)
     {
-        using var connection = OpenConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = "INSERT OR REPLACE INTO KeyValue (Key, Value, CreationTime) VALUES (@Key, @Value, @CreationTime)";
-        command.Parameters.AddWithValue("@Key", key);
-        command.Parameters.AddWithValue("@Value", value);
-        command.Parameters.AddWithValue("@CreationTime", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-        command.ExecuteNonQuery();
+        var parameters = new Dictionary<string, object>
+        {
+            {"@Key", key },
+            {"@Value", value },
+            {"@CreationTime", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
+        };
+        
+        Execute("""
+        INSERT OR REPLACE INTO KeyValue 
+            (Key, Value, CreationTime) 
+        VALUES 
+            (@Key, @Value, @CreationTime)
+        """, parameters);
     }
 
     private void CreateTable()

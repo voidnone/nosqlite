@@ -2,9 +2,10 @@ using System.Collections.Concurrent;
 
 namespace VoidNone.Nosqlite;
 
-public class ObjectStore(string path) : NosqliteStore(path)
+public class ObjectStore(string path) : SqliteStore(path)
 {
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
+
     public Collection<T>? Get<T>()
     {
         collections.TryGetValue(typeof(T).Name, out var collection);
@@ -13,7 +14,7 @@ public class ObjectStore(string path) : NosqliteStore(path)
 
     public Collection<T> GetRequired<T>()
     {
-        return Get<T>() ?? throw new CollectionNotFoundException();
+        return Get<T>() ?? throw new CollectionNotFoundException(typeof(T).Name);
     }
 
     public Collection? Get(string collection)
@@ -24,7 +25,7 @@ public class ObjectStore(string path) : NosqliteStore(path)
 
     public Collection GetRequired(string collection)
     {
-        return Get(collection) ?? throw new CollectionNotFoundException();
+        return Get(collection) ?? throw new CollectionNotFoundException(collection);
     }
 
     public Collection<T> GetOrCreate<T>()

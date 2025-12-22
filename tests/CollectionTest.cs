@@ -33,7 +33,7 @@ public class CollectionTest
         docOnDb.Data.Name = "jobs";
         await userCollection.UpdateAsync(docOnDb);
         docOnDb = await userCollection.GetRequiredByIdAsync(doc.Id);
-        Assert.AreEqual(docOnDb.Data.Name, "jobs");
+        Assert.AreEqual("jobs", docOnDb.Data.Name);
         Assert.IsTrue(docOnDb.LastWriteTime >= doc.LastWriteTime);
         userCollection.Remove(doc.Id);
         Assert.IsNull(await userCollection.GetByIdAsync(doc.Id));
