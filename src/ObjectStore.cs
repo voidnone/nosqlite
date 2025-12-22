@@ -3,37 +3,9 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.Nosqlite;
 
-public class NosqliteStore
+public class ObjectStore(string path) : NosqliteStore(path)
 {
-    private readonly string path;
-    private readonly string connectionString;
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
-
-    public NosqliteStore(string path)
-    {
-        this.path = path;
-        var dir = Path.GetDirectoryName(path);
-
-        if (!string.IsNullOrWhiteSpace(dir))
-        {
-            dir = Path.GetFullPath(dir);
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-        }
-
-        var builder = new SqliteConnectionStringBuilder
-        {
-            DataSource = path,
-            Cache = SqliteCacheMode.Shared,
-            Pooling = true,
-        };
-
-        connectionString = builder.ToString();
-        using var connection = new SqliteConnection(connectionString);
-        connection.Open();
-        using var command = connection.CreateCommand();
-        command.CommandText = "PRAGMA journal_mode = 'wal'";
-        command.ExecuteNonQuery();
-    }
 
     public Collection<T>? Get<T>()
     {
@@ -59,12 +31,12 @@ public class NosqliteStore
 
     public Collection<T> GetOrCreate<T>()
     {
-        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(connectionString));
+        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(ConnectionString));
     }
 
     public Collection GetOrCreate(string collection)
     {
-        return collections.GetOrAdd(collection, (name) => new Collection(connectionString, name));
+        return collections.GetOrAdd(collection, (name) => new Collection(ConnectionString, name));
     }
 
     public void Remove<T>() => Remove(typeof(T).Name);
@@ -72,7 +44,7 @@ public class NosqliteStore
     public void Remove(string collection)
     {
         if (!collections.TryRemove(collection, out var _)) return;
-        using var connection = new SqliteConnection(connectionString);
+        using var connection = new SqliteConnection(ConnectionString);
         connection.Open();
         using var command = connection.CreateCommand();
         command.CommandText = $"DROP TABLE IF EXISTS `{collection}`";

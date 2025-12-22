@@ -8,7 +8,7 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_CRUD_Async()
     {
-        var store = new NosqliteStore("test.db");
+        var store = new ObjectStore("test.db");
         var userCollection = store.GetOrCreate<User>();
 
         var doc = new NewDocument<User>
@@ -42,7 +42,7 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_ExistsAsync()
     {
-        var store = new NosqliteStore("test.db");
+        var store = new ObjectStore("test.db");
         var userCollection = store.GetOrCreate<User>();
 
         var doc = new NewDocument<User>

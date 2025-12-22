@@ -7,10 +7,10 @@ public class QueryTest
 {
     public required TestContext TestContext { get; set; }
 
-    public NosqliteStore GetStore()
+    public ObjectStore GetStore()
     {
         var path = TestContext.FullyQualifiedTestClassName + TestContext.TestName + ".db";
-        return new NosqliteStore(path);
+        return new ObjectStore(path);
     }
 
     [TestInitialize]
