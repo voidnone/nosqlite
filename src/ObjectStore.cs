@@ -1,12 +1,10 @@
 using System.Collections.Concurrent;
-using Microsoft.Data.Sqlite;
 
 namespace VoidNone.Nosqlite;
 
 public class ObjectStore(string path) : NosqliteStore(path)
 {
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
-
     public Collection<T>? Get<T>()
     {
         collections.TryGetValue(typeof(T).Name, out var collection);
@@ -31,12 +29,12 @@ public class ObjectStore(string path) : NosqliteStore(path)
 
     public Collection<T> GetOrCreate<T>()
     {
-        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(ConnectionString));
+        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(this));
     }
 
     public Collection GetOrCreate(string collection)
     {
-        return collections.GetOrAdd(collection, (name) => new Collection(ConnectionString, name));
+        return collections.GetOrAdd(collection, (name) => new Collection(this, name));
     }
 
     public void Remove<T>() => Remove(typeof(T).Name);
@@ -44,11 +42,7 @@ public class ObjectStore(string path) : NosqliteStore(path)
     public void Remove(string collection)
     {
         if (!collections.TryRemove(collection, out var _)) return;
-        using var connection = new SqliteConnection(ConnectionString);
-        connection.Open();
-        using var command = connection.CreateCommand();
-        command.CommandText = $"DROP TABLE IF EXISTS `{collection}`";
-        command.ExecuteNonQuery();
+        Execute($"DROP TABLE IF EXISTS `{collection}`");
     }
 
     public void Remove() => File.Delete(path);

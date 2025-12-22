@@ -2,13 +2,20 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.Nosqlite;
 
-public abstract class NosqliteStore
+public abstract class NosqliteStore(string path)
 {
-    private readonly string connectionString;
+    private string? connectionString;
+    private bool initialized = false;
 
-    public string ConnectionString => connectionString;
+    protected int Execute(string sql)
+    {
+        using var connection = OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        return command.ExecuteNonQuery();
+    }
 
-    public NosqliteStore(string path)
+    private void Initialize()
     {
         var dir = Path.GetDirectoryName(path);
 
@@ -26,25 +33,25 @@ public abstract class NosqliteStore
         };
 
         connectionString = builder.ToString();
-        using var connection = new SqliteConnection(connectionString);
+        Execute("PRAGMA journal_mode = 'wal'");
+    }
+
+    public SqliteConnection OpenConnection()
+    {
+        if (initialized == false)
+        {
+            lock (this)
+            {
+                if (initialized == false)
+                {
+                    initialized = true;
+                    Initialize();
+                }
+            }
+        }
+
+        var connection = new SqliteConnection(connectionString);
         connection.Open();
-        using var command = connection.CreateCommand();
-        command.CommandText = "PRAGMA journal_mode = 'wal'";
-        command.ExecuteNonQuery();
-    }
-
-    protected int Execute(string sql)
-    {
-        using var connection = GetConnection();
-        using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        return command.ExecuteNonQuery();
-    }
-
-    private SqliteConnection GetConnection()
-    {
-        var result = new SqliteConnection(ConnectionString);
-        result.Open();
-        return result;
+        return connection;
     }
 }

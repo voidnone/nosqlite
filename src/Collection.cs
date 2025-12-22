@@ -1,6 +1,6 @@
 namespace VoidNone.Nosqlite;
 
-public class Collection(string connectionString, string name) : Collection<IDictionary<string, object>>(connectionString)
+public class Collection(ObjectStore store, string name) : Collection<IDictionary<string, object>>(store)
 {
     public override string Name => name;
 }

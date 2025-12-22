@@ -4,24 +4,17 @@ namespace VoidNone.Nosqlite;
 
 public class Collection<T>
 {
-    private readonly string connectionString;
+    private readonly ObjectStore store;
 
-    public Query<T> Query => new(GetConnection(), Name);
+    public Query<T> Query => new(store.OpenConnection(), Name);
 
-    public Collection(string connectionString)
+    public Collection(ObjectStore store)
     {
-        this.connectionString = connectionString;
+        this.store = store;
         CreateTable();
     }
 
     public virtual string Name { get; init; } = typeof(T).Name;
-
-    public SqliteConnection GetConnection()
-    {
-        var result = new SqliteConnection(connectionString);
-        result.Open();
-        return result;
-    }
 
     public async Task<Document<T>> GetRequiredByIdAsync(string id, CancellationToken token = default)
     {
@@ -31,7 +24,7 @@ public class Collection<T>
 
     public async Task<Document<T>?> GetByIdAsync(string id, CancellationToken token = default)
     {
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
 
         command.CommandText = $"""
@@ -56,7 +49,7 @@ public class Collection<T>
 
     public async Task<Document<T>[]> GetByOwnerIdAsync(string ownerId, CancellationToken token = default)
     {
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
 
         command.CommandText = $"""
@@ -91,7 +84,7 @@ public class Collection<T>
             throw new DocumentNotFoundException();
         }
 
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
         command.CommandText = $"""
         INSERT INTO `{Name}` (
@@ -144,7 +137,7 @@ public class Collection<T>
             throw new DocumentNotFoundException();
         }
 
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
 
         command.CommandText = $"""
@@ -181,7 +174,7 @@ public class Collection<T>
 
     public bool Exists(string id)
     {
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
         command.CommandText = $"SELECT 1 FROM `{Name}` WHERE Id=@Id LIMIT 1";
         command.Parameters.AddWithValue("@Id", id);
@@ -193,7 +186,7 @@ public class Collection<T>
 
     public void Remove(string[] ids)
     {
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
         var idParameters = new List<string>();
 
@@ -210,7 +203,7 @@ public class Collection<T>
 
     private void CreateTable()
     {
-        using var connection = GetConnection();
+        using var connection = store.OpenConnection();
         using var command = connection.CreateCommand();
 
         command.CommandText = $"""

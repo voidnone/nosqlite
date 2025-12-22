@@ -1,5 +1,3 @@
-using Microsoft.Data.Sqlite;
-
 namespace VoidNone.Nosqlite;
 
 public class KeyValueStore : NosqliteStore
@@ -11,7 +9,7 @@ public class KeyValueStore : NosqliteStore
 
     public string? Get(string key)
     {
-        using var connection = GetConnection();
+        using var connection = OpenConnection();
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT Value FROM KeyValue WHERE Key = @Key LIMIT 1";
         command.Parameters.AddWithValue("@Key", key);
@@ -23,7 +21,7 @@ public class KeyValueStore : NosqliteStore
 
     public void Set(string key, string value)
     {
-        using var connection = GetConnection();
+        using var connection = OpenConnection();
         using var command = connection.CreateCommand();
         command.CommandText = "INSERT OR REPLACE INTO KeyValue (Key, Value, CreationTime) VALUES (@Key, @Value, @CreationTime)";
         command.Parameters.AddWithValue("@Key", key);
@@ -44,12 +42,5 @@ public class KeyValueStore : NosqliteStore
         CREATE INDEX IF NOT EXISTS KeyValue_OwnerId_INDEX
         ON `KeyValue`(CreationTime);
         """);
-    }
-
-    private SqliteConnection GetConnection()
-    {
-        var result = new SqliteConnection(ConnectionString);
-        result.Open();
-        return result;
     }
 }
