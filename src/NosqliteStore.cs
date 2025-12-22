@@ -44,8 +44,8 @@ public abstract class NosqliteStore(string path)
             {
                 if (initialized == false)
                 {
-                    initialized = true;
                     Initialize();
+                    initialized = true;
                 }
             }
         }
