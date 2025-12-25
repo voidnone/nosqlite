@@ -1,6 +1,7 @@
-using VoidNone.Nosqlite;
+using System.Threading.Tasks;
+using VoidNone.NoSQLite;
 
-namespace NosqliteTest;
+namespace VoidNone.NoSQLiteTest;
 
 [TestClass]
 public class CollectionTest

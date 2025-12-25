@@ -1,4 +1,4 @@
-namespace NosqliteTest;
+namespace VoidNone.NoSQLiteTest;
 
 
 public class Post

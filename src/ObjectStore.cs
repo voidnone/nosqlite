@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class ObjectStore(string path) : SqliteStore(path)
 {

@@ -1,4 +1,4 @@
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class CollectionNotFoundException(string name) : Exception($"Collection '{name}' not found")
 {

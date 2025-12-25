@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class Collection<T>
 {

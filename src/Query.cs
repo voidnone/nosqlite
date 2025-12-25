@@ -1,11 +1,11 @@
 using System.Text;
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class Query<T>(SqliteConnection connection, string name)
 {
-    record OrderItem(string Selector, bool Descending);
+    private record OrderItem(string Selector, bool Descending);
     private long skip;
     private string[]? exclude;
     private string? owner;

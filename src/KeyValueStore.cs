@@ -1,4 +1,4 @@
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class KeyValueStore : SqliteStore
 {

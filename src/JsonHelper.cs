@@ -1,9 +1,8 @@
-using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public static class JsonHelper
 {

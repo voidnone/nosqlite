@@ -1,6 +1,6 @@
-using VoidNone.Nosqlite;
+using VoidNone.NoSQLite;
 
-namespace NosqliteTest;
+namespace VoidNone.NoSQLiteTest;
 
 [TestClass]
 public class QueryTest

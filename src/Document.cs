@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public class NewDocument<T>
 {

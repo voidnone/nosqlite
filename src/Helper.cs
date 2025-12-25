@@ -1,4 +1,4 @@
-namespace VoidNone.Nosqlite;
+namespace VoidNone.NoSQLite;
 
 public static class Helper
 {
