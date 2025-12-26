@@ -1,6 +1,6 @@
 namespace VoidNone.NoSQLite;
 
-public class KeyValueStore : SqliteStore
+public class KeyValueStore : StoreBase
 {
     public KeyValueStore(string path) : base(path)
     {

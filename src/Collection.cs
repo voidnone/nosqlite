@@ -24,10 +24,12 @@ public class Collection<T>
 
     public async Task<Document<T>?> GetByIdAsync(string id, CancellationToken token = default)
     {
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        var parameters = new Dictionary<string, object>
+        {
+            { "@Id", id}
+        };
 
-        command.CommandText = $"""
+        using var reader = store.Query($"""
         SELECT 
             rowid as Rowid,
             Id,
@@ -38,10 +40,7 @@ public class Collection<T>
             Note,
             json(Data) as Data
         FROM `{Name}` WHERE Id=@Id LIMIT 1
-        """;
-
-        command.Parameters.AddWithValue("@Id", id);
-        using var reader = command.ExecuteReader();
+        """, parameters);
         var hasValue = reader.Read();
         if (!hasValue) return null;
         return await Collection<T>.ReadDocumentAsync(reader, token);

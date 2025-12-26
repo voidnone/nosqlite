@@ -2,12 +2,12 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.NoSQLite;
 
-public abstract class SqliteStore(string path)
+public abstract class StoreBase(string path)
 {
     private string? connectionString;
     private bool initialized = false;
 
-    protected int Execute(string sql, IDictionary<string, object>? parameters = null)
+    internal int Execute(string sql, IDictionary<string, object>? parameters = null)
     {
         using var connection = OpenConnection();
         using var command = connection.CreateCommand();
@@ -20,6 +20,21 @@ public abstract class SqliteStore(string path)
             }
         }
         return command.ExecuteNonQuery();
+    }
+
+    internal SqliteDataReader Query(string sql, IDictionary<string, object>? parameters = null)
+    {
+        using var connection = OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        if (parameters != null)
+        {
+            foreach (var item in parameters)
+            {
+                command.Parameters.AddWithValue(item.Key, item.Value);
+            }
+        }
+        return command.ExecuteReader();
     }
 
     private void Initialize()

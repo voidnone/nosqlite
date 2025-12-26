@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace VoidNone.NoSQLite;
 
-public class ObjectStore(string path) : SqliteStore(path)
+public class ObjectStore(string path) : StoreBase(path)
 {
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
 
