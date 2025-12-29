@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
 

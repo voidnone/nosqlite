@@ -1,6 +1,8 @@
-namespace VoidNone.NoSQLite;
 
-public class KeyValueStore : StoreBase
+namespace VoidNone.NoSQLite.Internal;
+
+
+internal class KeyValueStore : StoreBase, IKeyValueStore
 {
     public KeyValueStore(string path) : base(path)
     {
@@ -27,7 +29,7 @@ public class KeyValueStore : StoreBase
             {"@Value", value },
             {"@CreationTime", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
         };
-        
+
         Execute("""
         INSERT OR REPLACE INTO KeyValue 
             (Key, Value, CreationTime) 

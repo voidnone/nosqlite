@@ -2,16 +2,16 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace VoidNone.NoSQLite;
+namespace VoidNone.NoSQLite.Internal;
 
-public static class JsonHelper
+public static class Helper
 {
     private static readonly JsonSerializerOptions defaultOptions = new(JsonSerializerDefaults.Web);
     private static readonly JsonSerializerOptions readableOptions = new(JsonSerializerDefaults.Web);
     public static JsonSerializerOptions DefaultOptions => defaultOptions;
     public static JsonSerializerOptions ReadableOptions => readableOptions;
 
-    static JsonHelper()
+    static Helper()
     {
         ConfigureDefaultOptions(defaultOptions);
         ConfigureReadableOptions(readableOptions);
@@ -84,4 +84,10 @@ public static class JsonHelper
     }
 
     #endregion
+
+
+    public static DateTimeOffset UnixTimeMilliseconds()
+    {
+        return DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+    }
 }

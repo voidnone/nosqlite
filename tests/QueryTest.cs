@@ -7,10 +7,10 @@ public class QueryTest
 {
     public required TestContext TestContext { get; set; }
 
-    public ObjectStore GetStore()
+    public IObjectStore GetStore()
     {
         var path = TestContext.FullyQualifiedTestClassName + TestContext.TestName + ".db";
-        return new ObjectStore(path);
+        return new StoreFactory().CreateObjectStore(path);
     }
 
     [TestInitialize]

@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.Data.Sqlite;
+using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
 

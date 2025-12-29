@@ -1,8 +1,8 @@
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.NoSQLite;
+namespace VoidNone.NoSQLite.Internal;
 
-public abstract class StoreBase(string path)
+internal abstract class StoreBase(string path)
 {
     private string? connectionString;
     private bool initialized = false;

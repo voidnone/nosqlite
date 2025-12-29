@@ -1,8 +1,8 @@
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.NoSQLite;
+namespace VoidNone.NoSQLite.Internal;
 
-public class Collection<T>
+internal class Collection<T> : ICollection<T>
 {
     private readonly ObjectStore store;
 
@@ -115,7 +115,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        await JsonHelper.SerializeAsync(dataStream, document.Data, token);
+        await Helper.SerializeAsync(dataStream, document.Data, token);
         command.Parameters.AddWithValue("@Id", document.Id);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
         command.Parameters.AddWithValue("@CreationTime", document.CreationTime.ToUnixTimeMilliseconds());
@@ -159,7 +159,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        await JsonHelper.SerializeAsync(dataStream, document.Data, token);
+        await Helper.SerializeAsync(dataStream, document.Data, token);
         command.Parameters.AddWithValue("@Id", document.Id);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
@@ -252,12 +252,12 @@ public class Collection<T>
             LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(4)),
             Enabled = reader.GetBoolean(5),
             Note = reader.GetString(6),
-            Data = await JsonHelper.DeserializeAsync<T>(reader.GetStream(7), token) ?? throw new DocumentDataInvalidException(),
+            Data = await Helper.DeserializeAsync<T>(reader.GetStream(7), token) ?? throw new DocumentDataInvalidException(),
         };
     }
 }
 
-public class Collection(ObjectStore store, string name) : Collection<IDictionary<string, object>>(store)
+internal class Collection(ObjectStore store, string name) : Collection<IDictionary<string, object>>(store)
 {
     public override string Name => name;
 }

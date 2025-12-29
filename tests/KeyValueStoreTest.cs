@@ -26,7 +26,7 @@ public class KeyValueStoreTest
     [TestMethod]
     public void SetAndGet_ReturnsValue()
     {
-        var store = new KeyValueStore(tempFile);
+        var store = new StoreFactory().CreateKeyValueStore(tempFile);
         store.Set("k1", "v1");
         var got = store.Get("k1");
         Assert.AreEqual("v1", got);
@@ -35,7 +35,7 @@ public class KeyValueStoreTest
     [TestMethod]
     public void Get_NonExistentKey_ReturnsNull()
     {
-        var store = new KeyValueStore(tempFile);
+        var store = new StoreFactory().CreateKeyValueStore(tempFile);
         var got = store.Get("missing_key");
         Assert.IsNull(got);
     }
@@ -43,7 +43,7 @@ public class KeyValueStoreTest
     [TestMethod]
     public void Set_OverwriteValue_UpdatesValue()
     {
-        var store = new KeyValueStore(tempFile);
+        var store = new StoreFactory().CreateKeyValueStore(tempFile);
         store.Set("k2", "v2");
         store.Set("k2", "v2b");
         var got = store.Get("k2");
