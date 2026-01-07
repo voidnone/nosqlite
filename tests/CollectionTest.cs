@@ -9,8 +9,8 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_CRUD_Async()
     {
-        var store = IDatabase.Create("test.db");
-        var userCollection = store.GetOrCreate<User>();
+        var db = IDatabase.Create("test.db");
+        var userCollection = db.GetOrCreate<User>();
 
         var doc = new NewDocument<User>
         {
@@ -25,8 +25,8 @@ public class CollectionTest
         await userCollection.AddAsync(doc);
         var docOnDb = await userCollection.GetRequiredByIdAsync(doc.Id);
         Assert.AreEqual(doc.Id, docOnDb.Id);
-        Assert.AreEqual(doc.CreationTime, docOnDb.CreationTime);
-        Assert.AreEqual(doc.LastWriteTime, docOnDb.LastWriteTime);
+        Assert.AreEqual(doc.CreationTime, docOnDb.CreationTime.ToUnixTimeMilliseconds());
+        Assert.AreEqual(doc.LastWriteTime, docOnDb.LastWriteTime.ToUnixTimeMilliseconds());
         Assert.AreEqual(doc.Data.Name, docOnDb.Data.Name);
         Assert.AreEqual(doc.Data.Age, docOnDb.Data.Age);
         Assert.AreEqual(doc.Data.Tags[0], docOnDb.Data.Tags![0]);
@@ -35,7 +35,7 @@ public class CollectionTest
         await userCollection.UpdateAsync(docOnDb);
         docOnDb = await userCollection.GetRequiredByIdAsync(doc.Id);
         Assert.AreEqual("jobs", docOnDb.Data.Name);
-        Assert.IsTrue(docOnDb.LastWriteTime >= doc.LastWriteTime);
+        Assert.IsGreaterThanOrEqualTo(doc.LastWriteTime, docOnDb.LastWriteTime.ToUnixTimeMilliseconds());
         userCollection.Remove(doc.Id);
         Assert.IsNull(await userCollection.GetByIdAsync(doc.Id));
     }
@@ -43,8 +43,8 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_ExistsAsync()
     {
-        var store = IDatabase.Create("test.db");
-        var userCollection = store.GetOrCreate<User>();
+        var db = IDatabase.Create("test.db");
+        var userCollection = db.GetOrCreate<User>();
 
         var doc = new NewDocument<User>
         {

@@ -119,8 +119,8 @@ internal class Collection<T> : ICollection<T>
         await JsonSerializer.SerializeAsync(dataStream, document.Data, JsonSerializerOptions.Default, token);
         command.Parameters.AddWithValue("@Id", document.Id);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
-        command.Parameters.AddWithValue("@CreationTime", document.CreationTime.ToUnixTimeMilliseconds());
-        command.Parameters.AddWithValue("@LastWriteTime", document.LastWriteTime.ToUnixTimeMilliseconds());
+        command.Parameters.AddWithValue("@CreationTime", document.CreationTime);
+        command.Parameters.AddWithValue("@LastWriteTime", document.LastWriteTime);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
         command.Parameters.AddWithValue("@Enabled", document.Enabled);
         command.Parameters.AddWithValue("@Note", document.Note);

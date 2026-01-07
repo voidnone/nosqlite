@@ -1,17 +1,22 @@
 using System.ComponentModel.DataAnnotations;
-using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
 
 public class NewDocument<T>
 {
+    public NewDocument()
+    {
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        CreationTime = LastWriteTime = timestamp;
+    }
+
     [Range(1, 64)]
     public string Id { get; init; } = Guid.NewGuid().ToString();
 
     [Range(0, 64)]
     public string OwnerId { get; init; } = string.Empty;
-    public DateTimeOffset CreationTime { get; init; } = Helper.UnixTimeMilliseconds();
-    public DateTimeOffset LastWriteTime { get; init; } = Helper.UnixTimeMilliseconds();
+    public long CreationTime { get; init; }
+    public long LastWriteTime { get; init; }
     public required T Data { get; set; }
     public bool Enabled { get; set; } = true;
     public string Note { get; set; } = string.Empty;

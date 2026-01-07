@@ -14,8 +14,8 @@ public class User
     public string[]? Tags { get; set; }
 }
 
-var store = IDatabase.Create("account.db");
-var collection = store.GetOrCreate<User>();
+var db = IDatabase.Create("account.db");
+var collection = db.GetOrCreate<User>();
 var doc = new NewDocument<User>
 {
     Data = new User
