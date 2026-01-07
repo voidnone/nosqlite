@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.NoSQLite.Internal;
 
-internal abstract class StoreBase(string path)
+internal class Connection(string path)
 {
     private string? connectionString;
     private bool initialized = false;
@@ -24,8 +24,8 @@ internal abstract class StoreBase(string path)
 
     internal SqliteDataReader Query(string sql, IDictionary<string, object>? parameters = null)
     {
-        using var connection = OpenConnection();
-        using var command = connection.CreateCommand();
+        var connection = OpenConnection();
+        var command = connection.CreateCommand();
         command.CommandText = sql;
         if (parameters != null)
         {
@@ -34,7 +34,8 @@ internal abstract class StoreBase(string path)
                 command.Parameters.AddWithValue(item.Key, item.Value);
             }
         }
-        return command.ExecuteReader();
+        
+        return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
     }
 
     private void Initialize()

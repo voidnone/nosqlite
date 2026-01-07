@@ -2,8 +2,10 @@ using System.Collections.Concurrent;
 
 namespace VoidNone.NoSQLite.Internal;
 
-internal class ObjectStore(string path) : StoreBase(path), IObjectStore
+internal class Database(string path) : IDatabase
 {
+    private readonly Connection connection = new(path);
+
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
 
     public ICollection<T>? Get<T>()
@@ -30,12 +32,12 @@ internal class ObjectStore(string path) : StoreBase(path), IObjectStore
 
     public ICollection<T> GetOrCreate<T>()
     {
-        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(this));
+        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(connection));
     }
 
     public ICollection GetOrCreate(string collection)
     {
-        return collections.GetOrAdd(collection, (name) => new Collection(this, name));
+        return collections.GetOrAdd(collection, (name) => new Collection(connection, name));
     }
 
     public void Remove<T>() => Remove(typeof(T).Name);
@@ -43,7 +45,7 @@ internal class ObjectStore(string path) : StoreBase(path), IObjectStore
     public void Remove(string collection)
     {
         if (!collections.TryRemove(collection, out var _)) return;
-        Execute($"DROP TABLE IF EXISTS `{collection}`");
+        connection.Execute($"DROP TABLE IF EXISTS `{collection}`");
     }
 
     public void Remove() => File.Delete(path);

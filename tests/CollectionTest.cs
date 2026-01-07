@@ -9,7 +9,7 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_CRUD_Async()
     {
-        var store = new StoreFactory().CreateObjectStore("test.db");
+        var store = IDatabase.Create("test.db");
         var userCollection = store.GetOrCreate<User>();
 
         var doc = new NewDocument<User>
@@ -43,7 +43,7 @@ public class CollectionTest
     [TestMethod]
     public async Task Document_ExistsAsync()
     {
-        var store = new StoreFactory().CreateObjectStore("test.db");
+        var store = IDatabase.Create("test.db");
         var userCollection = store.GetOrCreate<User>();
 
         var doc = new NewDocument<User>

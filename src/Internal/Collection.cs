@@ -5,13 +5,13 @@ namespace VoidNone.NoSQLite.Internal;
 
 internal class Collection<T> : ICollection<T>
 {
-    private readonly ObjectStore store;
+    private readonly Connection connection;
 
-    public Query<T> Query => new(store.OpenConnection(), Name);
+    public Query<T> Query => new(connection.OpenConnection(), Name);
 
-    public Collection(ObjectStore store)
+    public Collection(Connection connection)
     {
-        this.store = store;
+        this.connection = connection;
         CreateTable();
     }
 
@@ -30,7 +30,7 @@ internal class Collection<T> : ICollection<T>
             { "@Id", id}
         };
 
-        using var reader = store.Query($"""
+        using var reader = connection.Query($"""
         SELECT 
             rowid as Rowid,
             Id,
@@ -49,8 +49,8 @@ internal class Collection<T> : ICollection<T>
 
     public async Task<Document<T>[]> GetByOwnerIdAsync(string ownerId, CancellationToken token = default)
     {
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
 
         command.CommandText = $"""
         SELECT 
@@ -84,8 +84,8 @@ internal class Collection<T> : ICollection<T>
             throw new DocumentNotFoundException();
         }
 
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
         command.CommandText = $"""
         INSERT INTO `{Name}` (
             Id,
@@ -137,8 +137,8 @@ internal class Collection<T> : ICollection<T>
             throw new DocumentNotFoundException();
         }
 
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
 
         command.CommandText = $"""
         UPDATE `{Name}` 
@@ -174,8 +174,8 @@ internal class Collection<T> : ICollection<T>
 
     public bool Exists(string id)
     {
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
         command.CommandText = $"SELECT 1 FROM `{Name}` WHERE Id=@Id LIMIT 1";
         command.Parameters.AddWithValue("@Id", id);
         using var reader = command.ExecuteReader();
@@ -186,8 +186,8 @@ internal class Collection<T> : ICollection<T>
 
     public void Remove(string[] ids)
     {
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
         var idParameters = new List<string>();
 
         for (int i = 0; i < ids.Length; i++)
@@ -203,8 +203,8 @@ internal class Collection<T> : ICollection<T>
 
     private void CreateTable()
     {
-        using var connection = store.OpenConnection();
-        using var command = connection.CreateCommand();
+        using var dbConnection = connection.OpenConnection();
+        using var command = dbConnection.CreateCommand();
 
         command.CommandText = $"""
         CREATE TABLE IF NOT EXISTS `{Name}` (
@@ -258,7 +258,7 @@ internal class Collection<T> : ICollection<T>
     }
 }
 
-internal class Collection(ObjectStore store, string name) : Collection<IDictionary<string, object>>(store)
+internal class Collection(Connection connection, string name) : Collection<IDictionary<string, object>>(connection)
 {
     public override string Name => name;
 }

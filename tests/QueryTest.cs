@@ -7,10 +7,10 @@ public class QueryTest
 {
     public required TestContext TestContext { get; set; }
 
-    public IObjectStore GetStore()
+    public IDatabase GetStore()
     {
         var path = TestContext.FullyQualifiedTestClassName + TestContext.TestName + ".db";
-        return new StoreFactory().CreateObjectStore(path);
+        return IDatabase.Create(path);
     }
 
     [TestInitialize]
@@ -72,7 +72,7 @@ public class QueryTest
     {
         var store = GetStore();
         var collection = store.GetOrCreate<User>();
-        var users = await collection.Query.Where("$.name", "Alex").TakeAsync();
+        var users = await collection.Query.Where("$.Name", "Alex").TakeAsync();
         Assert.AreEqual(1, users.Count());
     }
 
@@ -81,7 +81,7 @@ public class QueryTest
     {
         var store = GetStore();
         var collection = store.GetOrCreate<User>();
-        var user = await collection.Query.Where("$.name", "Alex").Exclude("$.tags").FirstOrDefaultAsync();
+        var user = await collection.Query.Where("$.Name", "Alex").Exclude("$.Tags").FirstOrDefaultAsync();
         Assert.IsNull(user!.Data.Tags);
     }
 

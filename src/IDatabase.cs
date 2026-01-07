@@ -1,6 +1,8 @@
+using VoidNone.NoSQLite.Internal;
+
 namespace VoidNone.NoSQLite;
 
-public interface IObjectStore
+public interface IDatabase
 {
     ICollection<T>? Get<T>();
     ICollection? Get(string collection);
@@ -11,4 +13,9 @@ public interface IObjectStore
     void Remove<T>();
     void Remove(string collection);
     void Remove();
+
+    static IDatabase Create(string path)
+    {
+        return new Database(path);
+    }
 }

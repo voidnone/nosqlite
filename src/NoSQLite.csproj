@@ -2,6 +2,14 @@
   <Import Project="../common.props" />
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Version>0.0.5</Version>
+    <Authors>huanent</Authors>
+    <AssemblyName>VoidNone.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>VoidNone.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <PackageId>NoSQLite</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -13,8 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../README.md" Pack="true" PackagePath="/" Visible="false" />
-    <None Include="../LICENSE.txt" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../README.md" Pack="true" PackagePath="/"/>
     <None Include="../icon.png" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
