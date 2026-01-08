@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../common.props" />
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <Version>0.0.6</Version>
+    <Version>0.0.7</Version>
     <Authors>huanent</Authors>
     <AssemblyName>VoidNone.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>VoidNone.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
@@ -21,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../README.md" Pack="true" PackagePath="/"/>
-    <None Include="../icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../icon.png" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
 </Project>
