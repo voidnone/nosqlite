@@ -1,10 +1,8 @@
 using System.Text;
-using Microsoft.Data.Sqlite;
-using VoidNone.NoSQLite.Internal;
 
-namespace VoidNone.NoSQLite;
+namespace VoidNone.NoSQLite.Internal;
 
-public class Query<T>(SqliteConnection connection, string name)
+internal class Query<T>(Connection connection, string name) : IQuery<T>
 {
     private record OrderItem(string Selector, bool Descending);
     private long skip;
@@ -13,13 +11,13 @@ public class Query<T>(SqliteConnection connection, string name)
     private readonly List<OrderItem> order = [];
     private string? where;
 
-    public Query<T> Where(string selector, object value)
+    public IQuery<T> Where(string selector, object value)
     {
         Where(selector, Comparison.Equals, value);
         return this;
     }
 
-    public Query<T> Where(string selector, Comparison comparison, object value)
+    public IQuery<T> Where(string selector, Comparison comparison, object value)
     {
         string? condition = Query<T>.GetCondition(selector, comparison, value);
         if (!string.IsNullOrWhiteSpace(condition))
@@ -37,13 +35,13 @@ public class Query<T>(SqliteConnection connection, string name)
         return this;
     }
 
-    public Query<T> OrWhere(string selector, object value)
+    public IQuery<T> OrWhere(string selector, object value)
     {
         OrWhere(selector, Comparison.Equals, value);
         return this;
     }
 
-    public Query<T> OrWhere(string selector, Comparison comparison, object value)
+    public IQuery<T> OrWhere(string selector, Comparison comparison, object value)
     {
         string? condition = Query<T>.GetCondition(selector, comparison, value);
         if (!string.IsNullOrWhiteSpace(condition))
@@ -60,31 +58,31 @@ public class Query<T>(SqliteConnection connection, string name)
         return this;
     }
 
-    public Query<T> Order(string selector)
+    public IQuery<T> Order(string selector)
     {
         order.Add(new OrderItem(selector, false));
         return this;
     }
 
-    public Query<T> OrderByDescending(string selector)
+    public IQuery<T> OrderByDescending(string selector)
     {
         order.Add(new OrderItem(selector, true));
         return this;
     }
 
-    public Query<T> Skip(long count)
+    public IQuery<T> Skip(long count)
     {
         skip = count;
         return this;
     }
 
-    public Query<T> Exclude(params string[] selectors)
+    public IQuery<T> Exclude(params string[] selectors)
     {
         exclude = selectors;
         return this;
     }
 
-    public Query<T> OwnerIn(params string[] ids)
+    public IQuery<T> OwnerIn(params string[] ids)
     {
         if (ids != null && ids.Length > 0)
         {
@@ -136,9 +134,7 @@ public class Query<T>(SqliteConnection connection, string name)
             sqlBuilder.AppendLine($"LIMIT {count ?? -1} OFFSET {skip}");
         }
 
-        using var command = connection.CreateCommand();
-        command.CommandText = sqlBuilder.ToString();
-        using var reader = command.ExecuteReader();
+        using var reader = connection.Query(sqlBuilder.ToString());
         var result = new List<Document<T>>();
 
         while (reader.Read())
@@ -166,9 +162,7 @@ public class Query<T>(SqliteConnection connection, string name)
             sqlBuilder.AppendLine($"LIMIT -1 OFFSET {skip}");
         }
 
-        using var command = connection.CreateCommand();
-        command.CommandText = sqlBuilder.ToString();
-        using var reader = command.ExecuteReader();
+        using var reader = connection.Query(sqlBuilder.ToString());
         reader.Read();
         return reader.GetInt64(0);
     }
@@ -258,16 +252,4 @@ public class Query<T>(SqliteConnection connection, string name)
             return (value.ToString()!, false);
         }
     }
-}
-
-public enum Comparison
-{
-    Equals,
-    NotEquals,
-    Greater,
-    GreaterOrEquals,
-    Less,
-    LessOrEquals,
-    StartsWith,
-    Contains
 }

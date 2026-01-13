@@ -7,7 +7,7 @@ internal class Collection<T> : ICollection<T>
 {
     private readonly Connection connection;
 
-    public Query<T> Query => new(connection.OpenConnection(), Name);
+    public IQuery<T> Query => new Query<T>(connection, Name);
 
     public Collection(Connection connection)
     {

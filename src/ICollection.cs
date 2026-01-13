@@ -2,7 +2,7 @@ namespace VoidNone.NoSQLite;
 
 public interface ICollection<T>
 {
-    Query<T> Query { get; }
+    IQuery<T> Query { get; }
     string Name { get; init; }
     Task<Document<T>> AddAsync(NewDocument<T> document, CancellationToken token = default);
     bool Exists(string id);
