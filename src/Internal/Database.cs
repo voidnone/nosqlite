@@ -8,45 +8,45 @@ internal class Database(string path) : IDatabase
 
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
 
-    public ICollection<T>? Get<T>()
+    public string Path => path;
+
+    public ICollection<T>? GetCollection<T>()
     {
         collections.TryGetValue(typeof(T).Name, out var collection);
         return collection;
     }
 
-    public ICollection<T> GetRequired<T>()
+    public ICollection<T> GetCollectionRequired<T>()
     {
-        return Get<T>() ?? throw new CollectionNotFoundException(typeof(T).Name);
+        return GetCollection<T>() ?? throw new CollectionNotFoundException(typeof(T).Name);
     }
 
-    public ICollection? Get(string collection)
+    public ICollection? GetCollection(string name)
     {
-        collections.TryGetValue(collection, out var result);
+        collections.TryGetValue(name, out var result);
         return result;
     }
 
-    public ICollection GetRequired(string collection)
+    public ICollection GetCollectionRequired(string name)
     {
-        return Get(collection) ?? throw new CollectionNotFoundException(collection);
+        return GetCollection(name) ?? throw new CollectionNotFoundException(name);
     }
 
-    public ICollection<T> GetOrCreate<T>()
+    public ICollection<T> GetOrCreateCollection<T>()
     {
         return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(connection));
     }
 
-    public ICollection GetOrCreate(string collection)
+    public ICollection GetOrCreateCollection(string name)
     {
-        return collections.GetOrAdd(collection, (name) => new Collection(connection, name));
+        return collections.GetOrAdd(name, (name) => new Collection(connection, name));
     }
 
-    public void Remove<T>() => Remove(typeof(T).Name);
+    public void RemoveCollection<T>() => RemoveCollection(typeof(T).Name);
 
-    public void Remove(string collection)
+    public void RemoveCollection(string name)
     {
-        if (!collections.TryRemove(collection, out var _)) return;
-        connection.Execute($"DROP TABLE IF EXISTS `{collection}`");
+        if (!collections.TryRemove(name, out var _)) return;
+        connection.Execute($"DROP TABLE IF EXISTS `{name}`");
     }
-
-    public void Remove() => File.Delete(path);
 }

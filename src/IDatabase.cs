@@ -4,18 +4,25 @@ namespace VoidNone.NoSQLite;
 
 public interface IDatabase
 {
-    ICollection<T>? Get<T>();
-    ICollection? Get(string collection);
-    ICollection<T> GetOrCreate<T>();
-    ICollection GetOrCreate(string collection);
-    ICollection<T> GetRequired<T>();
-    ICollection GetRequired(string collection);
-    void Remove<T>();
-    void Remove(string collection);
-    void Remove();
+    string Path { get; }
+
+    ICollection<T>? GetCollection<T>();
+    ICollection? GetCollection(string name);
+    ICollection<T> GetOrCreateCollection<T>();
+    ICollection GetOrCreateCollection(string name);
+    ICollection<T> GetCollectionRequired<T>();
+    ICollection GetCollectionRequired(string name);
+    void RemoveCollection<T>();
+    void RemoveCollection(string name);
 
     static IDatabase Create(string path)
     {
         return new Database(path);
+    }
+
+    static void Remove(string path)
+    {
+        if (!File.Exists(path)) return;
+        File.Delete(path);
     }
 }

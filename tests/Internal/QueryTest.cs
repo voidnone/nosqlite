@@ -1,6 +1,7 @@
+using NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
 
-namespace VoidNone.NoSQLiteTest;
+namespace NoSQLiteTest.Internal;
 
 [TestClass]
 public class QueryTest
@@ -17,8 +18,8 @@ public class QueryTest
     public async Task InitAsync()
     {
         var db = GetDatabase();
-        var userCollection = db.GetOrCreate<User>();
-        var postCollection = db.GetOrCreate<Post>();
+        var userCollection = db.GetOrCreateCollection<User>();
+        var postCollection = db.GetOrCreateCollection<Post>();
 
         var user1 = await userCollection.AddAsync(new NewDocument<User>
         {
@@ -64,14 +65,14 @@ public class QueryTest
     public void Dispose()
     {
         var db = GetDatabase();
-        db.Remove();
+        IDatabase.Remove(db.Path);
     }
 
     [TestMethod]
     public async Task TakeAsync()
     {
         var db = GetDatabase();
-        var collection = db.GetOrCreate<User>();
+        var collection = db.GetOrCreateCollection<User>();
         var users = await collection.Query.Where("$.Name", "Alex").TakeAsync();
         Assert.AreEqual(1, users.Count());
     }
@@ -80,7 +81,7 @@ public class QueryTest
     public async Task ExcludeAsync()
     {
         var db = GetDatabase();
-        var collection = db.GetOrCreate<User>();
+        var collection = db.GetOrCreateCollection<User>();
         var user = await collection.Query.Where("$.Name", "Alex").Exclude("$.Tags").FirstOrDefaultAsync();
         Assert.IsNull(user!.Data.Tags);
     }
@@ -89,9 +90,9 @@ public class QueryTest
     public async Task ParentInAsync()
     {
         var db = GetDatabase();
-        var collection = db.GetOrCreate<User>();
+        var collection = db.GetOrCreateCollection<User>();
         var user = await collection.Query.FirstOrDefaultAsync();
-        var posts = await db.GetOrCreate<Post>().Query.OwnerIn(user!.Id).TakeAsync();
+        var posts = await db.GetOrCreateCollection<Post>().Query.OwnerIn(user!.Id).TakeAsync();
         Assert.AreEqual(1, posts.Count());
     }
 }

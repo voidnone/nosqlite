@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
+using NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
 
-namespace VoidNone.NoSQLiteTest;
+namespace NoSQLiteTest.Internal;
 
 [TestClass]
 public class CollectionTest
@@ -10,7 +11,7 @@ public class CollectionTest
     public async Task Document_CRUD_Async()
     {
         var db = IDatabase.Create("test.db");
-        var userCollection = db.GetOrCreate<User>();
+        var userCollection = db.GetOrCreateCollection<User>();
 
         var doc = new NewDocument<User>
         {
@@ -44,7 +45,7 @@ public class CollectionTest
     public async Task Document_ExistsAsync()
     {
         var db = IDatabase.Create("test.db");
-        var userCollection = db.GetOrCreate<User>();
+        var userCollection = db.GetOrCreateCollection<User>();
 
         var doc = new NewDocument<User>
         {
