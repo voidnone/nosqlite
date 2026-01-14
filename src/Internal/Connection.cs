@@ -34,7 +34,7 @@ internal class Connection(string path)
                 command.Parameters.AddWithValue(item.Key, item.Value);
             }
         }
-        
+
         return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
     }
 

@@ -1,8 +1,7 @@
-using System.Threading.Tasks;
-using NoSQLiteTest.Models;
+using VoidNone.NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
 
-namespace NoSQLiteTest.Internal;
+namespace VoidNone.NoSQLiteTest.Internal;
 
 [TestClass]
 public class CollectionTest

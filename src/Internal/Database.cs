@@ -42,11 +42,12 @@ internal class Database(string path) : IDatabase
         return collections.GetOrAdd(name, (name) => new Collection(connection, name));
     }
 
-    public void RemoveCollection<T>() => RemoveCollection(typeof(T).Name);
+    public bool RemoveCollection<T>() => RemoveCollection(typeof(T).Name);
 
-    public void RemoveCollection(string name)
+    public bool RemoveCollection(string name)
     {
-        if (!collections.TryRemove(name, out var _)) return;
+        if (!collections.TryRemove(name, out var _)) return false;
         connection.Execute($"DROP TABLE IF EXISTS `{name}`");
+        return true;
     }
 }

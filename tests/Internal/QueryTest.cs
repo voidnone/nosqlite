@@ -1,7 +1,7 @@
-using NoSQLiteTest.Models;
+using VoidNone.NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
 
-namespace NoSQLiteTest.Internal;
+namespace VoidNone.NoSQLiteTest.Internal;
 
 [TestClass]
 public class QueryTest

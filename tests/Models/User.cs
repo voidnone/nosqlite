@@ -1,4 +1,4 @@
-namespace NoSQLiteTest.Models;
+namespace VoidNone.NoSQLiteTest.Models;
 
 
 public class User

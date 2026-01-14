@@ -258,7 +258,7 @@ internal class Collection<T> : ICollection<T>
     }
 }
 
-internal class Collection(Connection connection, string name) : Collection<IDictionary<string, object>>(connection)
+internal class Collection(Connection connection, string name) : Collection<IDictionary<string, object>>(connection), ICollection
 {
     public override string Name => name;
 }

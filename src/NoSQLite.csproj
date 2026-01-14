@@ -1,17 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <Version>0.0.8</Version>
-    <Authors>huanent</Authors>
-    <AssemblyName>VoidNone.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>VoidNone.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <Version>0.0.9</Version>
     <PackageId>NoSQLite</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/voidnone/nosqlite</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/voidnone/nosqlite.git</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

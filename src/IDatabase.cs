@@ -12,17 +12,18 @@ public interface IDatabase
     ICollection GetOrCreateCollection(string name);
     ICollection<T> GetCollectionRequired<T>();
     ICollection GetCollectionRequired(string name);
-    void RemoveCollection<T>();
-    void RemoveCollection(string name);
+    bool RemoveCollection<T>();
+    bool RemoveCollection(string name);
 
-    static IDatabase Create(string path)
+    static IDatabase Create(string path = ":memory:")
     {
         return new Database(path);
     }
 
-    static void Remove(string path)
+    static bool Remove(string path)
     {
-        if (!File.Exists(path)) return;
+        if (!File.Exists(path)) return false;
         File.Delete(path);
+        return true;
     }
 }

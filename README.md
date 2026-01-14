@@ -15,7 +15,7 @@ public class User
 }
 
 var db = IDatabase.Create("account.db");
-var collection = db.GetOrCreate<User>();
+var users = db.GetOrCreateCollection<User>();
 var doc = new NewDocument<User>
 {
     Data = new User
@@ -25,6 +25,6 @@ var doc = new NewDocument<User>
         Tags = ["a", "b"]
     }
 };
-await collection.AddAsync(doc);
-var docOnDb = await collection.GetRequiredByIdAsync(doc.Id);
+await users.AddAsync(doc);
+var docOnDb = await users.GetRequiredByIdAsync(doc.Id);
 ```
