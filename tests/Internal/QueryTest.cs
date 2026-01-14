@@ -6,18 +6,37 @@ namespace VoidNone.NoSQLiteTest.Internal;
 [TestClass]
 public class QueryTest
 {
-    public required TestContext TestContext { get; set; }
-
-    public IDatabase GetDatabase()
+    [TestMethod]
+    public async Task TakeAsync()
     {
-        var path = TestContext.FullyQualifiedTestClassName + TestContext.TestName + ".db";
-        return IDatabase.Create(path);
+        var db = await GetDatabaseAsync();
+        var collection = db.GetOrCreateCollection<User>();
+        var users = await collection.Query.Where("$.Name", "Alex").TakeAsync();
+        Assert.AreEqual(1, users.Count());
     }
 
-    [TestInitialize]
-    public async Task InitAsync()
+    [TestMethod]
+    public async Task ExcludeAsync()
     {
-        var db = GetDatabase();
+        var db = await GetDatabaseAsync();
+        var collection = db.GetOrCreateCollection<User>();
+        var user = await collection.Query.Where("$.Name", "Alex").Exclude("$.Tags").FirstOrDefaultAsync();
+        Assert.IsNull(user!.Data.Tags);
+    }
+
+    [TestMethod]
+    public async Task ParentInAsync()
+    {
+        var db = await GetDatabaseAsync();
+        var collection = db.GetOrCreateCollection<User>();
+        var user = await collection.Query.FirstOrDefaultAsync();
+        var posts = await db.GetOrCreateCollection<Post>().Query.OwnerIn(user!.Id).TakeAsync();
+        Assert.AreEqual(1, posts.Count());
+    }
+
+    private async Task<IDatabase> GetDatabaseAsync()
+    {
+        var db = IDatabase.Create();
         var userCollection = db.GetOrCreateCollection<User>();
         var postCollection = db.GetOrCreateCollection<Post>();
 
@@ -59,40 +78,7 @@ public class QueryTest
                 Title = "world"
             }
         });
-    }
 
-    [TestCleanup]
-    public void Dispose()
-    {
-        var db = GetDatabase();
-        IDatabase.Remove(db.Path);
-    }
-
-    [TestMethod]
-    public async Task TakeAsync()
-    {
-        var db = GetDatabase();
-        var collection = db.GetOrCreateCollection<User>();
-        var users = await collection.Query.Where("$.Name", "Alex").TakeAsync();
-        Assert.AreEqual(1, users.Count());
-    }
-
-    [TestMethod]
-    public async Task ExcludeAsync()
-    {
-        var db = GetDatabase();
-        var collection = db.GetOrCreateCollection<User>();
-        var user = await collection.Query.Where("$.Name", "Alex").Exclude("$.Tags").FirstOrDefaultAsync();
-        Assert.IsNull(user!.Data.Tags);
-    }
-
-    [TestMethod]
-    public async Task ParentInAsync()
-    {
-        var db = GetDatabase();
-        var collection = db.GetOrCreateCollection<User>();
-        var user = await collection.Query.FirstOrDefaultAsync();
-        var posts = await db.GetOrCreateCollection<Post>().Query.OwnerIn(user!.Id).TakeAsync();
-        Assert.AreEqual(1, posts.Count());
+        return db;
     }
 }

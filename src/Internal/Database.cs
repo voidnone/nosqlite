@@ -2,13 +2,13 @@ using System.Collections.Concurrent;
 
 namespace VoidNone.NoSQLite.Internal;
 
-internal class Database(string path) : IDatabase
+internal class Database(string? path) : IDatabase
 {
     private readonly Connection connection = new(path);
 
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
 
-    public string Path => path;
+    public string? Path => path;
 
     public ICollection<T>? GetCollection<T>()
     {

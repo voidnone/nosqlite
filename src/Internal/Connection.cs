@@ -2,10 +2,13 @@ using Microsoft.Data.Sqlite;
 
 namespace VoidNone.NoSQLite.Internal;
 
-internal class Connection(string path)
+internal class Connection(string? path)
 {
     private string? connectionString;
     private bool initialized = false;
+    private readonly string path = path ?? Guid.NewGuid().ToString();
+    private SqliteConnection? inMemoryConnection;
+    private readonly bool inMemory = path == null;
 
     internal int Execute(string sql, IDictionary<string, object>? parameters = null)
     {
@@ -55,7 +58,15 @@ internal class Connection(string path)
             Pooling = true,
         };
 
+        if (inMemory) builder.Mode = SqliteOpenMode.Memory;
         connectionString = builder.ToString();
+
+        if (inMemory)
+        {
+            inMemoryConnection = new SqliteConnection(connectionString);
+            inMemoryConnection.Open();
+        }
+
         Execute("PRAGMA journal_mode = 'wal'");
     }
 

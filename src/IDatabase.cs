@@ -4,7 +4,7 @@ namespace VoidNone.NoSQLite;
 
 public interface IDatabase
 {
-    string Path { get; }
+    string? Path { get; }
 
     ICollection<T>? GetCollection<T>();
     ICollection? GetCollection(string name);
@@ -15,7 +15,7 @@ public interface IDatabase
     bool RemoveCollection<T>();
     bool RemoveCollection(string name);
 
-    static IDatabase Create(string path = ":memory:")
+    static IDatabase Create(string? path = null)
     {
         return new Database(path);
     }
