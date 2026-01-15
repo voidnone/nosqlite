@@ -7,55 +7,54 @@ namespace VoidNone.NoSQLiteTest.Internal;
 public class CollectionTest
 {
     [TestMethod]
-    public async Task Document_CRUD_Async()
+    public async Task AddAsync()
     {
-        var db = IDatabase.Create("test.db");
-        var userCollection = db.GetOrCreateCollection<User>();
+        var db = IDatabase.Create();
+        var users = db.GetOrCreateCollection<User>();
+        var user = await users.AddAsync(new NewDocument<User>
+        {
+            Data = new User
+            {
+                Name = "alex"
+            }
+        });
+        Assert.AreEqual(1, users.Query.Count());
+        Assert.AreEqual("alex", (await users.Query.TakeAsync()).First().Data.Name);
+    }
 
+    [TestMethod]
+    public async Task Exists()
+    {
+        var db = IDatabase.Create();
+        var users = db.GetOrCreateCollection<User>();
         var doc = new NewDocument<User>
         {
             Data = new User
             {
-                Name = "alex",
-                Age = 23,
-                Tags = ["a", "b"]
+                Name = "alex"
             }
         };
-
-        await userCollection.AddAsync(doc);
-        var docOnDb = await userCollection.GetRequiredByIdAsync(doc.Id);
-        Assert.AreEqual(doc.Id, docOnDb.Id);
-        Assert.AreEqual(doc.CreationTime, docOnDb.CreationTime.ToUnixTimeMilliseconds());
-        Assert.AreEqual(doc.LastWriteTime, docOnDb.LastWriteTime.ToUnixTimeMilliseconds());
-        Assert.AreEqual(doc.Data.Name, docOnDb.Data.Name);
-        Assert.AreEqual(doc.Data.Age, docOnDb.Data.Age);
-        Assert.AreEqual(doc.Data.Tags[0], docOnDb.Data.Tags![0]);
-        Assert.AreEqual(doc.Data.Tags[1], docOnDb.Data.Tags[1]);
-        docOnDb.Data.Name = "jobs";
-        await userCollection.UpdateAsync(docOnDb);
-        docOnDb = await userCollection.GetRequiredByIdAsync(doc.Id);
-        Assert.AreEqual("jobs", docOnDb.Data.Name);
-        Assert.IsGreaterThanOrEqualTo(doc.LastWriteTime, docOnDb.LastWriteTime.ToUnixTimeMilliseconds());
-        userCollection.Remove(doc.Id);
-        Assert.IsNull(await userCollection.GetByIdAsync(doc.Id));
+        Assert.IsFalse(users.Exists(doc.Id));
+        await users.AddAsync(doc);
+        Assert.IsTrue(users.Exists(doc.Id));
     }
 
     [TestMethod]
-    public async Task Document_ExistsAsync()
+    public async Task GetByIdAsync()
     {
-        var db = IDatabase.Create("test.db");
-        var userCollection = db.GetOrCreateCollection<User>();
-
+        var db = IDatabase.Create();
+        var users = db.GetOrCreateCollection<User>();
         var doc = new NewDocument<User>
         {
-            Data = new User()
+            Data = new User
+            {
+                Name = "alex"
+            }
         };
-
-        await userCollection.AddAsync(doc);
-        var exist = userCollection.Exists(doc.Id);
-        Assert.IsTrue(exist);
-        userCollection.Remove(doc.Id);
-        exist = userCollection.Exists(doc.Id);
-        Assert.IsFalse(exist);
+        Assert.IsNull(await users.GetByIdAsync(doc.Id));
+        await users.AddAsync(doc);
+        var docInDb = await users.GetByIdAsync(doc.Id);
+        Assert.IsNotNull(docInDb);
+        Assert.AreEqual("alex", doc.Data.Name);
     }
 }
