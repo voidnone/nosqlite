@@ -1,15 +1,15 @@
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.NoSQLite.Internal;
+namespace VoidNone.NoSQLite;
 
-internal class Collection<T> : ICollection<T>
+public class Collection<T>
 {
     private readonly Connection connection;
 
-    public IQuery<T> Query => new Query<T>(connection, Name);
+    public Query<T> Query => new(connection, Name);
 
-    public Collection(Connection connection)
+    internal Collection(Connection connection)
     {
         this.connection = connection;
         CreateTable();
@@ -258,7 +258,7 @@ internal class Collection<T> : ICollection<T>
     }
 }
 
-internal class Collection(Connection connection, string name) : Collection<IDictionary<string, object>>(connection), ICollection
+public class Collection(Connection connection, string name) : Collection<IDictionary<string, object>>(connection)
 {
     public override string Name => name;
 }

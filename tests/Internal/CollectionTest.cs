@@ -9,7 +9,7 @@ public class CollectionTest
     [TestMethod]
     public async Task AddAsync()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         var user = await users.AddAsync(new NewDocument<User>
         {
@@ -25,7 +25,7 @@ public class CollectionTest
     [TestMethod]
     public async Task Exists()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         var doc = new NewDocument<User>
         {
@@ -42,7 +42,7 @@ public class CollectionTest
     [TestMethod]
     public async Task GetByIdAsync()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         var doc = new NewDocument<User>
         {

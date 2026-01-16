@@ -1,14 +1,20 @@
 using Microsoft.Data.Sqlite;
 
-namespace VoidNone.NoSQLite.Internal;
+namespace VoidNone.NoSQLite;
 
-internal class Connection(string? path)
+public class Connection
 {
     private string? connectionString;
     private bool initialized = false;
-    private readonly string path = path ?? Guid.NewGuid().ToString();
+    private readonly string path;
     private SqliteConnection? inMemoryConnection;
-    private readonly bool inMemory = path == null;
+    private readonly bool inMemory;
+
+    internal Connection(string? path)
+    {
+        this.path = path ?? Guid.NewGuid().ToString();
+        inMemory = path == null;
+    }
 
     internal int Execute(string sql, IDictionary<string, object>? parameters = null)
     {
@@ -70,7 +76,7 @@ internal class Connection(string? path)
         Execute("PRAGMA journal_mode = 'wal'");
     }
 
-    public SqliteConnection OpenConnection()
+    internal SqliteConnection OpenConnection()
     {
         if (initialized == false)
         {

@@ -1,43 +1,50 @@
 using System.Collections.Concurrent;
 
-namespace VoidNone.NoSQLite.Internal;
+namespace VoidNone.NoSQLite;
 
-internal class Database(string? path) : IDatabase
+public class Database
 {
-    private readonly Connection connection = new(path);
+    private readonly Connection connection;
 
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
+    private readonly string? path;
+
+    internal Database(string? path)
+    {
+        this.path = path;
+        connection = new(path);
+    }
 
     public string? Path => path;
 
-    public ICollection<T>? GetCollection<T>()
+    public Collection<T>? GetCollection<T>()
     {
         collections.TryGetValue(typeof(T).Name, out var collection);
         return collection;
     }
 
-    public ICollection<T> GetCollectionRequired<T>()
+    public Collection<T> GetCollectionRequired<T>()
     {
         return GetCollection<T>() ?? throw new CollectionNotFoundException(typeof(T).Name);
     }
 
-    public ICollection? GetCollection(string name)
+    public Collection? GetCollection(string name)
     {
         collections.TryGetValue(name, out var result);
         return result;
     }
 
-    public ICollection GetCollectionRequired(string name)
+    public Collection GetCollectionRequired(string name)
     {
         return GetCollection(name) ?? throw new CollectionNotFoundException(name);
     }
 
-    public ICollection<T> GetOrCreateCollection<T>()
+    public Collection<T> GetOrCreateCollection<T>()
     {
         return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(connection));
     }
 
-    public ICollection GetOrCreateCollection(string name)
+    public Collection GetOrCreateCollection(string name)
     {
         return collections.GetOrAdd(name, (name) => new Collection(connection, name));
     }
@@ -48,6 +55,18 @@ internal class Database(string? path) : IDatabase
     {
         if (!collections.TryRemove(name, out var _)) return false;
         connection.Execute($"DROP TABLE IF EXISTS `{name}`");
+        return true;
+    }
+
+    public static Database Create(string? path = null)
+    {
+        return new Database(path);
+    }
+
+    public static bool Remove(string path)
+    {
+        if (!File.Exists(path)) return false;
+        File.Delete(path);
         return true;
     }
 }

@@ -34,9 +34,9 @@ public class QueryTest
         Assert.AreEqual(1, posts.Count());
     }
 
-    private async Task<IDatabase> GetDatabaseAsync()
+    private async Task<Database> GetDatabaseAsync()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var userCollection = db.GetOrCreateCollection<User>();
         var postCollection = db.GetOrCreateCollection<Post>();
 

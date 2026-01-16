@@ -1,23 +1,31 @@
 using System.Text;
 
-namespace VoidNone.NoSQLite.Internal;
+namespace VoidNone.NoSQLite;
 
-internal class Query<T>(Connection connection, string name) : IQuery<T>
+public class Query<T>
 {
     private record OrderItem(string Selector, bool Descending);
     private long skip;
     private string[]? exclude;
     private string? owner;
     private readonly List<OrderItem> order = [];
+    private readonly Connection connection;
+    private readonly string name;
     private string? where;
 
-    public IQuery<T> Where(string selector, object value)
+    internal Query(Connection connection, string name)
+    {
+        this.connection = connection;
+        this.name = name;
+    }
+
+    public Query<T> Where(string selector, object value)
     {
         Where(selector, Comparison.Equals, value);
         return this;
     }
 
-    public IQuery<T> Where(string selector, Comparison comparison, object value)
+    public Query<T> Where(string selector, Comparison comparison, object value)
     {
         string? condition = Query<T>.GetCondition(selector, comparison, value);
         if (!string.IsNullOrWhiteSpace(condition))
@@ -35,13 +43,13 @@ internal class Query<T>(Connection connection, string name) : IQuery<T>
         return this;
     }
 
-    public IQuery<T> OrWhere(string selector, object value)
+    public Query<T> OrWhere(string selector, object value)
     {
         OrWhere(selector, Comparison.Equals, value);
         return this;
     }
 
-    public IQuery<T> OrWhere(string selector, Comparison comparison, object value)
+    public Query<T> OrWhere(string selector, Comparison comparison, object value)
     {
         string? condition = Query<T>.GetCondition(selector, comparison, value);
         if (!string.IsNullOrWhiteSpace(condition))
@@ -58,31 +66,31 @@ internal class Query<T>(Connection connection, string name) : IQuery<T>
         return this;
     }
 
-    public IQuery<T> Order(string selector)
+    public Query<T> Order(string selector)
     {
         order.Add(new OrderItem(selector, false));
         return this;
     }
 
-    public IQuery<T> OrderByDescending(string selector)
+    public Query<T> OrderByDescending(string selector)
     {
         order.Add(new OrderItem(selector, true));
         return this;
     }
 
-    public IQuery<T> Skip(long count)
+    public Query<T> Skip(long count)
     {
         skip = count;
         return this;
     }
 
-    public IQuery<T> Exclude(params string[] selectors)
+    public Query<T> Exclude(params string[] selectors)
     {
         exclude = selectors;
         return this;
     }
 
-    public IQuery<T> OwnerIn(params string[] ids)
+    public Query<T> OwnerIn(params string[] ids)
     {
         if (ids != null && ids.Length > 0)
         {

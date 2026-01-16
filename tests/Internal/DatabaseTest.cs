@@ -9,7 +9,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetCollection()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetCollection(nameof(User));
         Assert.IsNull(users);
         db.GetOrCreateCollection(nameof(User));
@@ -20,7 +20,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetCollectionT()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetCollection<User>();
         Assert.IsNull(users);
         db.GetOrCreateCollection<User>();
@@ -31,7 +31,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetOrCreateCollection()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetOrCreateCollection(nameof(User));
         Assert.IsNotNull(users);
     }
@@ -39,7 +39,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetOrCreateCollectionT()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         Assert.IsNotNull(users);
     }
@@ -47,7 +47,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetCollectionRequired()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
 
         Assert.ThrowsExactly<CollectionNotFoundException>(() =>
         {
@@ -62,7 +62,7 @@ public class DatabaseTest
     [TestMethod]
     public void GetCollectionRequiredT()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
 
         Assert.ThrowsExactly<CollectionNotFoundException>(() =>
         {
@@ -77,7 +77,7 @@ public class DatabaseTest
     [TestMethod]
     public void RemoveCollection()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var success = db.RemoveCollection(nameof(User));
         Assert.IsFalse(success);
         db.GetOrCreateCollection(nameof(User));
@@ -88,7 +88,7 @@ public class DatabaseTest
     [TestMethod]
     public void RemoveCollectionT()
     {
-        var db = IDatabase.Create();
+        var db = Database.Create();
         var success = db.RemoveCollection<User>();
         Assert.IsFalse(success);
         db.GetOrCreateCollection<User>();
