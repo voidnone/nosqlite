@@ -1,7 +1,7 @@
 using VoidNone.NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
 
-namespace VoidNone.NoSQLiteTest.Internal;
+namespace VoidNone.NoSQLiteTest;
 
 [TestClass]
 public class CollectionTest

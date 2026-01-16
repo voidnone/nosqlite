@@ -1,11 +1,26 @@
 using VoidNone.NoSQLite;
 using VoidNone.NoSQLiteTest.Models;
 
-namespace VoidNone.NoSQLiteTest.Internal;
+namespace VoidNone.NoSQLiteTest;
 
 [TestClass]
 public class DatabaseTest
 {
+    [TestCleanup]
+    public void TestCleanup()
+    {
+        Database.Remove("test.db");
+    }
+
+    [TestMethod]
+    public void InMemory()
+    {
+        var db = Database.Create();
+        Assert.IsTrue(db.Connection.InMemory);
+        db = Database.Create("test.db");
+        Assert.IsFalse(db.Connection.InMemory);
+    }
+
     [TestMethod]
     public void GetCollection()
     {
@@ -45,17 +60,17 @@ public class DatabaseTest
     }
 
     [TestMethod]
-    public void GetCollectionRequired()
+    public void GetRequiredCollection()
     {
         var db = Database.Create();
 
         Assert.ThrowsExactly<CollectionNotFoundException>(() =>
         {
-            db.GetCollectionRequired(nameof(User));
+            db.GetRequiredCollection(nameof(User));
         });
 
         db.GetOrCreateCollection(nameof(User));
-        var users = db.GetCollectionRequired(nameof(User));
+        var users = db.GetRequiredCollection(nameof(User));
         Assert.IsNotNull(users);
     }
 
@@ -66,11 +81,11 @@ public class DatabaseTest
 
         Assert.ThrowsExactly<CollectionNotFoundException>(() =>
         {
-            db.GetCollectionRequired<User>();
+            db.GetRequiredCollection<User>();
         });
 
         db.GetOrCreateCollection<User>();
-        var users = db.GetCollectionRequired<User>();
+        var users = db.GetRequiredCollection<User>();
         Assert.IsNotNull(users);
     }
 
@@ -95,4 +110,10 @@ public class DatabaseTest
         success = db.RemoveCollection<User>();
         Assert.IsTrue(success);
     }
+
+    // [TestMethod]
+    // public void Query()
+    // {
+    //     var db = Database.Create();
+    // }
 }

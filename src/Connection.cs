@@ -8,12 +8,13 @@ public class Connection
     private bool initialized = false;
     private readonly string path;
     private SqliteConnection? inMemoryConnection;
-    private readonly bool inMemory;
+
+    public bool InMemory { get; }
 
     internal Connection(string? path)
     {
         this.path = path ?? Guid.NewGuid().ToString();
-        inMemory = path == null;
+        InMemory = path == null;
     }
 
     internal int Execute(string sql, IDictionary<string, object>? parameters = null)
@@ -46,7 +47,7 @@ public class Connection
 
         return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
     }
-
+    
     private void Initialize()
     {
         var dir = Path.GetDirectoryName(path);
@@ -62,12 +63,12 @@ public class Connection
             DataSource = path,
             Cache = SqliteCacheMode.Shared,
             Pooling = true,
+            Mode = InMemory ? SqliteOpenMode.Memory : SqliteOpenMode.ReadWriteCreate
         };
 
-        if (inMemory) builder.Mode = SqliteOpenMode.Memory;
         connectionString = builder.ToString();
 
-        if (inMemory)
+        if (InMemory)
         {
             inMemoryConnection = new SqliteConnection(connectionString);
             inMemoryConnection.Open();

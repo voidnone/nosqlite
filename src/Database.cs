@@ -1,21 +1,18 @@
 using System.Collections.Concurrent;
+using Microsoft.Data.Sqlite;
 
 namespace VoidNone.NoSQLite;
 
 public class Database
 {
-    private readonly Connection connection;
-
     private readonly ConcurrentDictionary<string, dynamic> collections = [];
-    private readonly string? path;
+
+    public Connection Connection { get; }
 
     internal Database(string? path)
     {
-        this.path = path;
-        connection = new(path);
+        Connection = new(path);
     }
-
-    public string? Path => path;
 
     public Collection<T>? GetCollection<T>()
     {
@@ -23,7 +20,7 @@ public class Database
         return collection;
     }
 
-    public Collection<T> GetCollectionRequired<T>()
+    public Collection<T> GetRequiredCollection<T>()
     {
         return GetCollection<T>() ?? throw new CollectionNotFoundException(typeof(T).Name);
     }
@@ -34,19 +31,19 @@ public class Database
         return result;
     }
 
-    public Collection GetCollectionRequired(string name)
+    public Collection GetRequiredCollection(string name)
     {
         return GetCollection(name) ?? throw new CollectionNotFoundException(name);
     }
 
     public Collection<T> GetOrCreateCollection<T>()
     {
-        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(connection));
+        return collections.GetOrAdd(typeof(T).Name, (name) => new Collection<T>(Connection));
     }
 
     public Collection GetOrCreateCollection(string name)
     {
-        return collections.GetOrAdd(name, (name) => new Collection(connection, name));
+        return collections.GetOrAdd(name, (name) => new Collection(Connection, name));
     }
 
     public bool RemoveCollection<T>() => RemoveCollection(typeof(T).Name);
@@ -54,7 +51,7 @@ public class Database
     public bool RemoveCollection(string name)
     {
         if (!collections.TryRemove(name, out var _)) return false;
-        connection.Execute($"DROP TABLE IF EXISTS `{name}`");
+        Connection.Execute($"DROP TABLE IF EXISTS `{name}`");
         return true;
     }
 
@@ -66,6 +63,8 @@ public class Database
     public static bool Remove(string path)
     {
         if (!File.Exists(path)) return false;
+        var connection = new Connection(path).OpenConnection();
+        SqliteConnection.ClearPool(connection);
         File.Delete(path);
         return true;
     }
