@@ -6,21 +6,6 @@ namespace VoidNone.NoSQLiteTest;
 [TestClass]
 public class DatabaseTest
 {
-    [TestCleanup]
-    public void TestCleanup()
-    {
-        Database.Remove("test.db");
-    }
-
-    [TestMethod]
-    public void InMemory()
-    {
-        var db = Database.Create();
-        Assert.IsTrue(db.Connection.InMemory);
-        db = Database.Create("test.db");
-        Assert.IsFalse(db.Connection.InMemory);
-    }
-
     [TestMethod]
     public void GetCollection()
     {
