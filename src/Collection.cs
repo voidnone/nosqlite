@@ -77,9 +77,11 @@ public class Collection<T>
         return [.. result];
     }
 
-    public async Task<Document<T>> AddAsync(NewDocument<T> document, CancellationToken token = default)
+    public Task<Document<T>> AddAsync(T data, CancellationToken token = default) => AddAsync(data, new(), token);
+   
+    public async Task<Document<T>> AddAsync(T data, NewDocumentOptions options, CancellationToken token = default)
     {
-        if (document.Data is null)
+        if (data is null)
         {
             throw new DocumentNotFoundException();
         }
@@ -116,14 +118,15 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(dataStream, document.Data, JsonSerializerOptions.Default, token);
-        command.Parameters.AddWithValue("@Id", document.Id);
-        command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
-        command.Parameters.AddWithValue("@CreationTime", document.CreationTime);
-        command.Parameters.AddWithValue("@LastWriteTime", document.LastWriteTime);
+        await JsonSerializer.SerializeAsync(dataStream, data, JsonSerializerOptions.Default, token);
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        command.Parameters.AddWithValue("@Id", options.Id ?? Guid.NewGuid().ToString("N"));
+        command.Parameters.AddWithValue("@OwnerId", options.OwnerId ?? string.Empty);
+        command.Parameters.AddWithValue("@CreationTime", timestamp);
+        command.Parameters.AddWithValue("@LastWriteTime", timestamp);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
-        command.Parameters.AddWithValue("@Enabled", document.Enabled);
-        command.Parameters.AddWithValue("@Note", document.Note);
+        command.Parameters.AddWithValue("@Enabled", options.Enabled);
+        command.Parameters.AddWithValue("@Note", options.Note ?? string.Empty);
 
         using var reader = command.ExecuteReader();
         reader.Read();

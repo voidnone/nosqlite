@@ -40,43 +40,32 @@ public class QueryTest
         var userCollection = db.GetOrCreateCollection<User>();
         var postCollection = db.GetOrCreateCollection<Post>();
 
-        var user1 = await userCollection.AddAsync(new NewDocument<User>
+        var user1 = await userCollection.AddAsync(new User
         {
-            Data = new User
-            {
-                Name = "Alex",
-                Age = 23,
-                Tags = ["1", "2"]
-            }
+            Name = "Alex",
+            Age = 23,
+            Tags = ["1", "2"]
         });
 
-        await userCollection.AddAsync(new NewDocument<User>
+        await userCollection.AddAsync(new User
         {
-            Data = new User
-            {
-                Name = "Jobs",
-                Age = 24,
-                Tags = ["1", "2"]
-            }
+            Name = "Jobs",
+            Age = 24,
+            Tags = ["1", "2"]
         });
 
-        await postCollection.AddAsync(
-            new NewDocument<Post>
-            {
-                Data = new Post
-                {
-                    Title = "hello"
-                },
-                OwnerId = user1.Id
-            }
+        await postCollection.AddAsync(new Post
+        {
+            Title = "hello"
+        }, new NewDocumentOptions
+        {
+            OwnerId = user1.Id
+        }
         );
 
-        await postCollection.AddAsync(new NewDocument<Post>
+        await postCollection.AddAsync(new Post
         {
-            Data = new Post
-            {
-                Title = "world"
-            }
+            Title = "world"
         });
 
         return db;
