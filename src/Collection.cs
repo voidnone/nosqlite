@@ -19,7 +19,7 @@ public class Collection<T>
 
     public async Task<Document<T>> GetRequiredByIdAsync(string id, CancellationToken token = default)
     {
-        var result = await GetByIdAsync(id, token) ?? throw new DataCanNotBeNullException();
+        var result = await GetByIdAsync(id, token) ?? throw new DocumentNotFoundException(id);
         return result;
     }
 
@@ -81,10 +81,8 @@ public class Collection<T>
    
     public async Task<Document<T>> AddAsync(T data, NewDocumentOptions options, CancellationToken token = default)
     {
-        if (data is null)
-        {
-            throw new DocumentNotFoundException();
-        }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(options);
 
         using var dbConnection = connection.OpenConnection();
         using var command = dbConnection.CreateCommand();
@@ -135,10 +133,7 @@ public class Collection<T>
 
     public async Task<Document<T>> UpdateAsync(Document<T> document, CancellationToken token = default)
     {
-        if (document.Data is null)
-        {
-            throw new DocumentNotFoundException();
-        }
+        ArgumentNullException.ThrowIfNull(document);
 
         using var dbConnection = connection.OpenConnection();
         using var command = dbConnection.CreateCommand();

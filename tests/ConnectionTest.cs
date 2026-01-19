@@ -29,4 +29,17 @@ public class ConnectionTest
         result = connection.Execute("INSERT INTO Test (Id) VALUES (@Id)", new Dictionary<string, object> { { "@Id", "123" } });
         Assert.AreEqual(1, result);
     }
+
+    [TestMethod]
+    public void Query()
+    {
+        var connection = new Connection(null);
+        connection.Execute("CREATE TABLE Test (Id TEXT PRIMARY KEY)");
+        connection.Execute("INSERT INTO Test (Id) VALUES (@Id)", new Dictionary<string, object> { { "@Id", "123" } });
+
+        using var reader = connection.Query("SELECT Id FROM Test WHERE Id = @Id", new Dictionary<string, object> { { "@Id", "123" } });
+        Assert.IsTrue(reader.Read());
+        Assert.AreEqual("123", reader.GetString(0));
+        Assert.IsFalse(reader.Read());
+    }
 }

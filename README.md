@@ -16,15 +16,14 @@ public class User
 
 var db = Database.Create("account.db");
 var users = db.GetOrCreateCollection<User>();
-var doc = new NewDocument<User>
+
+var user=new User
 {
-    Data = new User
-    {
-        Name = "alex",
-        Age = 23,
-        Tags = ["a", "b"]
-    }
+    Name = "alex",
+    Age = 23,
+    Tags = ["a", "b"]
 };
-await users.AddAsync(doc);
+
+await users.AddAsync(user);
 var docOnDb = await users.GetRequiredByIdAsync(doc.Id);
 ```

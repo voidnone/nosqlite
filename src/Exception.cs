@@ -4,12 +4,7 @@ public class CollectionNotFoundException(string name) : Exception($"Collection '
 {
 }
 
-public class DataCanNotBeNullException : Exception
-{
-
-}
-
-public class DocumentNotFoundException : Exception
+public class DocumentNotFoundException(string id) : Exception($"Document with id '{id}' was not found")
 {
 
 }
