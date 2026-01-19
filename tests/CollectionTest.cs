@@ -65,4 +65,41 @@ public class CollectionTest
         var list = await posts.GetByOwnerIdAsync("id1");
         Assert.HasCount(2, list);
     }
+
+    [TestMethod]
+    public async Task UpdateAsync()
+    {
+        var db = Database.Create();
+        var posts = db.GetOrCreateCollection<Post>();
+        var post = await posts.AddAsync(new Post
+        {
+            Title = "Hello world"
+        });
+
+        post.Data.Title = "Hello";
+        post.Enabled = false;
+        post.Note = "world";
+        post.OwnerId = "123";
+
+        post = await posts.UpdateAsync(post);
+        Assert.AreEqual("Hello", post.Data.Title);
+        Assert.IsFalse(post.Enabled);
+        Assert.AreEqual("world", post.Note);
+        Assert.AreEqual("123", post.OwnerId);
+    }
+
+    [TestMethod]
+    public async Task Remove()
+    {
+        var db = Database.Create();
+        var posts = db.GetOrCreateCollection<Post>();
+        var post = await posts.AddAsync(new Post
+        {
+            Title = "Hello world"
+        });
+
+        Assert.IsTrue(posts.Exists(post.Id));
+        posts.Remove(post.Id);
+        Assert.IsFalse(posts.Exists(post.Id));
+    }
 }
