@@ -156,7 +156,8 @@ public class Query<T>
 
     public async Task<Document<T>?> FirstOrDefaultAsync()
     {
-        return (await TakeAsync(1)).FirstOrDefault();
+        var result = await TakeAsync(1);
+        return result.FirstOrDefault();
     }
 
     public long Count()

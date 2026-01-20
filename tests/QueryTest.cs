@@ -25,7 +25,7 @@ public class QueryTest
     }
 
     [TestMethod]
-    public async Task ParentInAsync()
+    public async Task OwnerInAsync()
     {
         var db = await GetDatabaseAsync();
         var collection = db.GetOrCreateCollection<User>();

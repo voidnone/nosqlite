@@ -1,5 +1,5 @@
-using VoidNone.NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
+using VoidNone.NoSQLiteTest.Models;
 
 namespace VoidNone.NoSQLiteTest;
 
@@ -36,13 +36,41 @@ public class CollectionTest
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
+        var id = Guid.NewGuid().ToString();
+        var doc = await users.GetByIdAsync(id);
+        Assert.IsNull(doc);
         var user = await users.AddAsync(new User
         {
             Name = "alex"
+        }, new NewDocumentOptions
+        {
+            Id = id
         });
-        var docInDb = await users.GetByIdAsync(user.Id);
-        Assert.IsNotNull(docInDb);
-        Assert.AreEqual("alex", user.Data.Name);
+        doc = await users.GetByIdAsync(user.Id);
+        Assert.IsNotNull(doc);
+    }
+
+    [TestMethod]
+    public async Task GetRequiredByIdAsync()
+    {
+        var db = Database.Create();
+        var users = db.GetOrCreateCollection<User>();
+        var id = Guid.NewGuid().ToString();
+
+        await Assert.ThrowsExactlyAsync<DocumentNotFoundException>(async () =>
+        {
+            await users.GetRequiredByIdAsync(id);
+        });
+
+        var user = await users.AddAsync(new User
+        {
+            Name = "alex"
+        }, new NewDocumentOptions
+        {
+            Id = id
+        });
+        var doc = await users.GetRequiredByIdAsync(user.Id);
+        Assert.IsNotNull(doc);
     }
 
     [TestMethod]
