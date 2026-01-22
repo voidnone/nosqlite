@@ -36,7 +36,7 @@ public class QueryTest
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
-        await users.AddAsync(new User { Name = "alex" }, new NewDocumentOptions
+        await users.AddAsync(new User { Name = "alex" }, new DocumentOptions
         {
             OwnerId = "123"
         });

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VoidNone.NoSQLite;
 
-public class NewDocumentOptions
+public class DocumentOptions
 {
     public string? Id { get; set; }
     public string? OwnerId { get; set; }

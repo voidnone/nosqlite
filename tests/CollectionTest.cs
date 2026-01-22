@@ -42,7 +42,7 @@ public class CollectionTest
         var user = await users.AddAsync(new User
         {
             Name = "alex"
-        }, new NewDocumentOptions
+        }, new DocumentOptions
         {
             Id = id
         });
@@ -65,7 +65,7 @@ public class CollectionTest
         var user = await users.AddAsync(new User
         {
             Name = "alex"
-        }, new NewDocumentOptions
+        }, new DocumentOptions
         {
             Id = id
         });
@@ -84,7 +84,7 @@ public class CollectionTest
             await posts.AddAsync(new Post
             {
                 Title = "Hello world"
-            }, new NewDocumentOptions
+            }, new DocumentOptions
             {
                 OwnerId = "id1"
             });

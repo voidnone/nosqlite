@@ -78,8 +78,8 @@ public class Collection<T>
     }
 
     public Task<Document<T>> AddAsync(T data, CancellationToken token = default) => AddAsync(data, new(), token);
-   
-    public async Task<Document<T>> AddAsync(T data, NewDocumentOptions options, CancellationToken token = default)
+
+    public async Task<Document<T>> AddAsync(T data, DocumentOptions options, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(options);
@@ -180,23 +180,21 @@ public class Collection<T>
         return reader.Read();
     }
 
-    public void Remove(string id) => Remove([id]);
+    public bool Remove(string id) => Remove([id]) == 1;
 
-    public void Remove(string[] ids)
+    public int Remove(string[] ids)
     {
-        using var dbConnection = connection.OpenConnection();
-        using var command = dbConnection.CreateCommand();
-        var idParameters = new List<string>();
+        var names = new List<string>();
+        var parameters = new Dictionary<string, object>();
 
         for (int i = 0; i < ids.Length; i++)
         {
             var name = $"@Id{i}";
-            idParameters.Add(name);
-            command.Parameters.AddWithValue(name, ids[i]);
+            names.Add(name);
+            parameters.Add(name, ids[i]);
         }
 
-        command.CommandText = $"DELETE FROM `{Name}`WHERE Id IN ({string.Join(',', idParameters)})";
-        command.ExecuteNonQuery();
+        return connection.Execute($"DELETE FROM `{Name}`WHERE Id IN ({string.Join(',', names)})", parameters);
     }
 
     private void CreateTable()
