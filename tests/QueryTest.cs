@@ -1,5 +1,5 @@
-using VoidNone.NoSQLiteTest.Models;
 using VoidNone.NoSQLite;
+using VoidNone.NoSQLiteTest.Models;
 
 namespace VoidNone.NoSQLiteTest;
 
@@ -9,65 +9,38 @@ public class QueryTest
     [TestMethod]
     public async Task TakeAsync()
     {
-        var db = await GetDatabaseAsync();
-        var collection = db.GetOrCreateCollection<User>();
-        var users = await collection.Query.Where("$.Name", "Alex").TakeAsync();
-        Assert.AreEqual(1, users.Count());
+        var db = Database.Create();
+        var users = db.GetOrCreateCollection<User>();
+        await users.AddAsync(new User { Name = "alex" });
+        var result = await users.Query.TakeAsync();
+        Assert.AreEqual(1, result.Count());
+        Assert.AreEqual("alex", result[0].Data.Name);
+        await users.AddAsync(new User { Name = "jobs" });
+        result = await users.Query.TakeAsync();
+        Assert.AreEqual(2, result.Count());
+        Assert.AreEqual("jobs", result[1].Data.Name);
     }
 
     [TestMethod]
     public async Task ExcludeAsync()
     {
-        var db = await GetDatabaseAsync();
+        var db = Database.Create();
         var collection = db.GetOrCreateCollection<User>();
-        var user = await collection.Query.Where("$.Name", "Alex").Exclude("$.Tags").FirstOrDefaultAsync();
+        await collection.AddAsync(new User { Name = "alex", Tags = ["a", "b"] });
+        var user = await collection.Query.Exclude("$.Tags").FirstOrDefaultAsync();
         Assert.IsNull(user!.Data.Tags);
     }
 
     [TestMethod]
     public async Task OwnerInAsync()
     {
-        var db = await GetDatabaseAsync();
-        var collection = db.GetOrCreateCollection<User>();
-        var user = await collection.Query.FirstOrDefaultAsync();
-        var posts = await db.GetOrCreateCollection<Post>().Query.OwnerIn(user!.Id).TakeAsync();
-        Assert.AreEqual(1, posts.Count());
-    }
-
-    private async Task<Database> GetDatabaseAsync()
-    {
         var db = Database.Create();
-        var userCollection = db.GetOrCreateCollection<User>();
-        var postCollection = db.GetOrCreateCollection<Post>();
-
-        var user1 = await userCollection.AddAsync(new User
+        var users = db.GetOrCreateCollection<User>();
+        await users.AddAsync(new User { Name = "alex" }, new NewDocumentOptions
         {
-            Name = "Alex",
-            Age = 23,
-            Tags = ["1", "2"]
+            OwnerId = "123"
         });
-
-        await userCollection.AddAsync(new User
-        {
-            Name = "Jobs",
-            Age = 24,
-            Tags = ["1", "2"]
-        });
-
-        await postCollection.AddAsync(new Post
-        {
-            Title = "hello"
-        }, new NewDocumentOptions
-        {
-            OwnerId = user1.Id
-        }
-        );
-
-        await postCollection.AddAsync(new Post
-        {
-            Title = "world"
-        });
-
-        return db;
+        var posts = await users.Query.OwnerIn("123").TakeAsync();
+        Assert.AreEqual(1, posts.Count());
     }
 }

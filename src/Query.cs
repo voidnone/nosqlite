@@ -99,12 +99,12 @@ public class Query<T>
         return this;
     }
 
-    public Task<IEnumerable<Document<T>>> TakeAsync(CancellationToken token)
+    public Task<Document<T>[]> TakeAsync(CancellationToken token)
     {
         return TakeAsync(null, token);
     }
 
-    public async Task<IEnumerable<Document<T>>> TakeAsync(long? count = null, CancellationToken token = default)
+    public async Task<Document<T>[]> TakeAsync(long? count = null, CancellationToken token = default)
     {
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append($"SELECT rowid as RowId,Id,OwnerId,CreationTime,LastWriteTime,Enabled,Note,");
@@ -151,7 +151,7 @@ public class Query<T>
             result.Add(doc);
         }
 
-        return result;
+        return [.. result];
     }
 
     public async Task<Document<T>?> FirstOrDefaultAsync()
