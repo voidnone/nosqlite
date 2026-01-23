@@ -6,7 +6,7 @@
 
 ## Usage
 
-```
+```csharp
 public class User
 {
     public string? Name { get; set; }
@@ -17,13 +17,24 @@ public class User
 var db = Database.Create("account.db");
 var users = db.GetOrCreateCollection<User>();
 
-var user=new User
+// Create 
+var user= await users.AddAsync(new User
 {
     Name = "alex",
     Age = 23,
     Tags = ["a", "b"]
-};
+});
 
-await users.AddAsync(user);
-var docOnDb = await users.GetRequiredByIdAsync(doc.Id);
+// Update
+user.Data.Age = 32;
+users.UpdateAsync(user);
+
+// Get
+user = await users.GetByIdAsync(user.Id);
+
+// Query
+var filteredUsers= users.Query.Where("$.Age", Comparison.Greater, 20).TakeAsync();
+
+///Delete
+users.Delete(user.Id)
 ```

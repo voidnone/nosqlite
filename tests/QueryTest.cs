@@ -16,6 +16,7 @@ public class QueryTest
         Assert.AreEqual(1, result.Count());
         Assert.AreEqual("alex", result[0].Data.Name);
         await users.AddAsync(new User { Name = "jobs" });
+
         result = await users.Query.TakeAsync();
         Assert.AreEqual(2, result.Count());
         Assert.AreEqual("jobs", result[1].Data.Name);
@@ -41,6 +42,19 @@ public class QueryTest
             OwnerId = "123"
         });
         var posts = await users.Query.OwnerIn("123").TakeAsync();
+        Assert.AreEqual(1, posts.Count());
+    }
+
+    [TestMethod]
+    public async Task WhereAsync()
+    {
+        var db = Database.Create();
+        var users = db.GetOrCreateCollection<User>();
+        await users.AddAsync(new User { Name = "alex" }, new DocumentOptions
+        {
+            OwnerId = "123"
+        });
+        var posts = await users.Query.Where("$.Name", "alex").TakeAsync();
         Assert.AreEqual(1, posts.Count());
     }
 }

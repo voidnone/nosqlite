@@ -195,6 +195,9 @@ public class Query<T>
     }
     private static string? GetCondition(string selector, Comparison comparison, object value)
     {
+        selector = selector.Trim();
+        // TODO
+        // if (!selector.StartsWith("$.")) selector = $"$.{selector}";
         string? condition = null;
         selector = $"jsonb_extract(Data,'{selector}')";
         var valueInfo = GetValue(value);
