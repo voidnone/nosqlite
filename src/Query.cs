@@ -160,6 +160,12 @@ public class Query<T>
         return result.FirstOrDefault();
     }
 
+    public async Task<Document<T>> FirstAsync()
+    {
+        var result = await FirstOrDefaultAsync();
+        return result ?? throw new DocumentNotFoundException();
+    }
+
     public long Count()
     {
         var sqlBuilder = new StringBuilder();
