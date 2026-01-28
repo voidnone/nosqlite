@@ -6,6 +6,17 @@ namespace VoidNone.NoSQLiteTest;
 [TestClass]
 public class CollectionTest
 {
+
+    [TestMethod]
+    public async Task NameAsync()
+    {
+        var db = Database.Create();
+        var users = db.GetOrCreateCollection<User>();
+        var wrappers = db.GetOrCreateCollection<Wrapper<User>>();
+        Assert.AreEqual("User", users.Name);
+        Assert.AreEqual("WrapperUser", wrappers.Name);
+    }
+
     [TestMethod]
     public async Task AddAsync()
     {

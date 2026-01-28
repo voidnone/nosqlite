@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
+using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
 
@@ -11,11 +12,12 @@ public class Collection<T>
 
     internal Collection(Connection connection)
     {
+        Validator.ValidateName(Name);
         this.connection = connection;
         CreateTable();
     }
 
-    public virtual string Name { get; init; } = typeof(T).Name;
+    public virtual string Name { get; init; } = typeof(T).GetCollectionName();
 
     public async Task<Document<T>> GetRequiredByIdAsync(string id, CancellationToken token = default)
     {

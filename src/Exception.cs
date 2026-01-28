@@ -1,12 +1,28 @@
 namespace VoidNone.NoSQLite;
 
-public class CollectionNotFoundException(string name) : Exception($"Collection '{name}' not found")
+
+public abstract class NoSQLiteException : Exception
+{
+    public NoSQLiteException()
+    {
+    }
+
+    public NoSQLiteException(string? message) : base(message)
+    {
+    }
+}
+
+public class NameInvalidException(string name) : NoSQLiteException($"Name '{name}' invalid")
 {
 }
 
-public class DocumentNotFoundException : Exception
+public class CollectionNotFoundException(string name) : NoSQLiteException($"Collection with name '{name}' was not found")
 {
-    public DocumentNotFoundException()
+}
+
+public class DocumentNotFoundException : NoSQLiteException
+{
+    public DocumentNotFoundException() : base($"Document not found")
     {
     }
 
@@ -15,7 +31,7 @@ public class DocumentNotFoundException : Exception
     }
 }
 
-public class DocumentDataInvalidException : Exception
+public class DocumentDataInvalidException : NoSQLiteException
 {
 
 }

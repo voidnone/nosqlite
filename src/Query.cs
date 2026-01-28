@@ -259,7 +259,7 @@ public class Query<T>
     {
         if (value is null)
         {
-            return ($"NULL", true);
+            return ("NULL", true);
         }
         else if (value is string)
         {
