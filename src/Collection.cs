@@ -227,7 +227,7 @@ public class Collection<T>
         );
 
         CREATE TRIGGER IF NOT EXISTS {Name}_TRIGGER
-        AFTER UPDATE ON `{Name}`
+        BEFORE UPDATE ON `{Name}`
         FOR EACH ROW
         BEGIN
             UPDATE `{Name}`
