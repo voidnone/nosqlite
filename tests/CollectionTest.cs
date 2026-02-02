@@ -22,10 +22,11 @@ public class CollectionTest
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
-        await users.AddAsync(new User
+        var user = await users.AddAsync(new User
         {
             Name = "alex"
         });
+        Assert.AreEqual(1, user.RowId);
         Assert.AreEqual(1, users.Query.Count());
         Assert.AreEqual("alex", (await users.Query.TakeAsync()).First().Data.Name);
     }
@@ -119,12 +120,16 @@ public class CollectionTest
         post.Enabled = false;
         post.Note = "world";
         post.OwnerId = "123";
-
-        post = await posts.UpdateAsync(post);
-        Assert.AreEqual("Hello", post.Data.Title);
-        Assert.IsFalse(post.Enabled);
-        Assert.AreEqual("world", post.Note);
-        Assert.AreEqual("123", post.OwnerId);
+        await Task.Delay(TimeSpan.FromMilliseconds(1));
+        var result = await posts.UpdateAsync(post);
+        Assert.AreEqual(post.RowId, result.RowId);
+        Assert.AreEqual(post.Id, result.Id);
+        Assert.AreEqual(post.CreationTime, result.CreationTime);
+        Assert.IsTrue(result.LastWriteTime > post.LastWriteTime);
+        Assert.AreEqual("Hello", result.Data.Title);
+        Assert.IsFalse(result.Enabled);
+        Assert.AreEqual("world", result.Note);
+        Assert.AreEqual("123", result.OwnerId);
     }
 
     [TestMethod]

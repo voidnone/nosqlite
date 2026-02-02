@@ -5,7 +5,7 @@ namespace VoidNone.NoSQLite;
 public class Connection
 {
     private string? connectionString;
-    private bool initialized = false;
+    private volatile bool initialized = false;
     private readonly string path;
     private SqliteConnection? inMemoryConnection;
 

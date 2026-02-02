@@ -107,21 +107,17 @@ public class Collection<T>
             @Note
         )
         RETURNING 
-            rowid as Rowid,
-            Id,
-            OwnerId,
-            CreationTime,
-            LastWriteTime,
-            Enabled,
-            Note,
-            json(Data) as Data 
+            rowid as Rowid
         """;
 
         var dataStream = new MemoryStream();
         await JsonSerializer.SerializeAsync(dataStream, data, JsonSerializerOptions.Default, token);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        command.Parameters.AddWithValue("@Id", options.Id ?? Guid.NewGuid().ToString("N"));
-        command.Parameters.AddWithValue("@OwnerId", options.OwnerId ?? string.Empty);
+        var id = options.Id ?? Guid.NewGuid().ToString("N");
+        var ownerId = options.OwnerId ?? string.Empty;
+        var note = options.Note ?? string.Empty;
+        command.Parameters.AddWithValue("@Id", id);
+        command.Parameters.AddWithValue("@OwnerId", ownerId);
         command.Parameters.AddWithValue("@CreationTime", timestamp);
         command.Parameters.AddWithValue("@LastWriteTime", timestamp);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
@@ -130,7 +126,18 @@ public class Collection<T>
 
         using var reader = command.ExecuteReader();
         reader.Read();
-        return await Collection<T>.ReadDocumentAsync(reader, token);
+
+        return new Document<T>
+        {
+            RowId = reader.GetInt64(0),
+            CreationTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp),
+            LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp),
+            Data = data,
+            Enabled = options.Enabled,
+            Id = id,
+            OwnerId = ownerId,
+            Note = note
+        };
     }
 
     public async Task<Document<T>> UpdateAsync(Document<T> document, CancellationToken token = default)
@@ -147,21 +154,14 @@ public class Collection<T>
             Enabled = @Enabled,
             Note = @Note
         WHERE
-            Id = @Id
+            rowid = @RowId
         RETURNING 
-            rowid as Rowid,
-            Id,
-            OwnerId,
-            CreationTime,
-            LastWriteTime,
-            Enabled,
-            Note,
-            json(Data) as Data 
+            LastWriteTime
         """;
 
         var dataStream = new MemoryStream();
         await JsonSerializer.SerializeAsync(dataStream, document.Data, JsonSerializerOptions.Default, token);
-        command.Parameters.AddWithValue("@Id", document.Id);
+        command.Parameters.AddWithValue("@RowId", document.RowId);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
         command.Parameters.AddWithValue("@Enabled", document.Enabled);
@@ -169,7 +169,18 @@ public class Collection<T>
 
         using var reader = command.ExecuteReader();
         reader.Read();
-        return await Collection<T>.ReadDocumentAsync(reader, token);
+        
+        return new Document<T>
+        {
+            LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)),
+            CreationTime = document.CreationTime,
+            RowId = document.RowId,
+            Id = document.Id,
+            Data = document.Data,
+            Enabled = document.Enabled,
+            Note = document.Note,
+            OwnerId = document.OwnerId
+        };
     }
 
     public bool Exists(string id)

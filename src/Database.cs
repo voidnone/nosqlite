@@ -50,8 +50,8 @@ public class Database
 
     public bool RemoveCollection(string name)
     {
-        if (!collections.TryRemove(name, out var _)) return false;
-        Connection.Execute($"DROP TABLE IF EXISTS `{name}`");
+        if (!collections.TryRemove(name, out var collection)) return false;
+        Connection.Execute($"DROP TABLE IF EXISTS `{collection.Name}`");
         return true;
     }
 
