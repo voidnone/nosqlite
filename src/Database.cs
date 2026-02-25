@@ -60,12 +60,11 @@ public class Database
         return new Database(path);
     }
 
-    public static bool Remove(string path)
+    public static void Close(string path) => new Connection(path).Close();
+
+    public static void Remove(string path)
     {
-        if (!File.Exists(path)) return false;
-        var connection = new Connection(path).OpenConnection();
-        SqliteConnection.ClearPool(connection);
-        File.Delete(path);
-        return true;
+        Close(path);
+        if (File.Exists(path)) File.Delete(path);
     }
 }

@@ -13,7 +13,7 @@ public class Connection
 
     internal Connection(string? path)
     {
-        this.path = path ?? Guid.NewGuid().ToString();
+        this.path = Path.GetFullPath(path ?? (Guid.NewGuid().ToString() + ".db"));
         InMemory = path == null;
     }
 
@@ -47,26 +47,16 @@ public class Connection
 
         return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
     }
-    
+
     private void Initialize()
     {
-        var dir = Path.GetDirectoryName(path);
-
-        if (!string.IsNullOrWhiteSpace(dir))
+        if (!InMemory)
         {
-            dir = Path.GetFullPath(dir);
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            var dir = Path.GetDirectoryName(path);
+            if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
         }
 
-        var builder = new SqliteConnectionStringBuilder
-        {
-            DataSource = path,
-            Cache = SqliteCacheMode.Shared,
-            Pooling = true,
-            Mode = InMemory ? SqliteOpenMode.Memory : SqliteOpenMode.ReadWriteCreate
-        };
-
-        connectionString = builder.ToString();
+        connectionString = GetConnectionString();
 
         if (InMemory)
         {
@@ -75,6 +65,19 @@ public class Connection
         }
 
         Execute("PRAGMA journal_mode = 'wal'");
+    }
+
+    private string GetConnectionString()
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = path,
+            Cache = SqliteCacheMode.Shared,
+            Pooling = true,
+            Mode = InMemory ? SqliteOpenMode.Memory : SqliteOpenMode.ReadWriteCreate
+        };
+
+        return builder.ToString();
     }
 
     internal SqliteConnection OpenConnection()
@@ -94,5 +97,12 @@ public class Connection
         var connection = new SqliteConnection(connectionString);
         connection.Open();
         return connection;
+    }
+
+    internal void Close()
+    {
+        if (InMemory) return;
+        if (!File.Exists(path)) return;
+        SqliteConnection.ClearPool(new SqliteConnection(GetConnectionString()));
     }
 }

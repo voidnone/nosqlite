@@ -96,9 +96,16 @@ public class DatabaseTest
         Assert.IsTrue(success);
     }
 
-    // [TestMethod]
-    // public void Query()
-    // {
-    //     var db = Database.Create();
-    // }
+    [TestMethod]
+    public void Lifetime()
+    {
+        var fileName = "lifetime.db";
+        if (File.Exists(fileName)) File.Delete(fileName);
+        var db = Database.Create(fileName);
+        Assert.IsFalse(File.Exists(fileName));
+        db.GetOrCreateCollection("test");
+        Assert.IsTrue(File.Exists(fileName));
+        Database.Remove(fileName);
+        Assert.IsFalse(File.Exists(fileName));
+    }
 }
