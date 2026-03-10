@@ -169,7 +169,7 @@ public class Collection<T>
 
         using var reader = command.ExecuteReader();
         reader.Read();
-        
+
         return new Document<T>
         {
             LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)),
@@ -210,12 +210,18 @@ public class Collection<T>
         return connection.Execute($"DELETE FROM `{Name}`WHERE Id IN ({string.Join(',', names)})", parameters);
     }
 
+    public void EnsureIndex(params string[] fields)
+    {
+        var columns = string.Join(',', fields.Select(s => $"json_extract(data, '$.{s}')"));
+        connection.Execute($"""
+        CREATE INDEX IF NOT EXISTS Data_{string.Join('_', fields)}_INDEX
+            ON `{Name}`({columns});
+        """);
+    }
+
     private void CreateTable()
     {
-        using var dbConnection = connection.OpenConnection();
-        using var command = dbConnection.CreateCommand();
-
-        command.CommandText = $"""
+        connection.Execute($"""
         CREATE TABLE IF NOT EXISTS `{Name}` (
             Id TEXT PRIMARY KEY,
             OwnerId TEXT NOT NULL,
@@ -246,9 +252,7 @@ public class Collection<T>
 
         CREATE INDEX IF NOT EXISTS {Name}_Enabled_INDEX
         ON `{Name}`(Enabled);
-        """;
-
-        command.ExecuteNonQuery();
+        """);
     }
 
     internal static async Task<Document<T>> ReadDocumentAsync(SqliteDataReader reader, CancellationToken token)

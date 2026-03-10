@@ -146,4 +146,20 @@ public class CollectionTest
         posts.Remove(post.Id);
         Assert.IsFalse(posts.Exists(post.Id));
     }
+
+     [TestMethod]
+    public async Task EnsureIndex()
+    {
+        var db = Database.Create();
+        var posts = db.GetOrCreateCollection<Post>();
+        posts.EnsureIndex("Title");
+        var post = await posts.AddAsync(new Post
+        {
+            Title = "Hello world"
+        });
+
+        Assert.IsTrue(posts.Exists(post.Id));
+        posts.Remove(post.Id);
+        Assert.IsFalse(posts.Exists(post.Id));
+    }
 }
