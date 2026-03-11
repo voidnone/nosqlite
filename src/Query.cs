@@ -100,12 +100,12 @@ public class Query<T>
         return this;
     }
 
-    public IEnumerable<Document<T>> Take()
+    public IEnumerable<Document<T>> Take(CancellationToken token = default)
     {
-        return Take(null);
+        return Take(null, token);
     }
 
-    public IEnumerable<Document<T>> Take(long? count = null)
+    public IEnumerable<Document<T>> Take(long? count = null, CancellationToken token = default)
     {
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append($"SELECT rowid as RowId,Id,OwnerId,CreationTime,LastWriteTime,Enabled,Note,");
@@ -147,6 +147,7 @@ public class Query<T>
 
         while (reader.Read())
         {
+            token.ThrowIfCancellationRequested();
             yield return reader.ReadDocument<T>();
         }
     }

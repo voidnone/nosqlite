@@ -48,7 +48,7 @@ public class Collection<T>
         return reader.ReadDocument<T>();
     }
 
-    public IEnumerable<Document<T>> GetByOwnerId(string ownerId)
+    public IEnumerable<Document<T>> GetByOwnerId(string ownerId, CancellationToken token = default)
     {
         using var dbConnection = connection.OpenConnection();
         using var command = dbConnection.CreateCommand();
@@ -71,6 +71,7 @@ public class Collection<T>
 
         while (reader.Read())
         {
+            token.ThrowIfCancellationRequested();
             yield return reader.ReadDocument<T>();
         }
     }
