@@ -18,25 +18,25 @@ public class CollectionTest
     }
 
     [TestMethod]
-    public async Task AddAsync()
+    public void Add()
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
-        var user = await users.AddAsync(new User
+        var user = users.Add(new User
         {
             Name = "alex"
         });
         Assert.AreEqual(1, user.RowId);
         Assert.AreEqual(1, users.Query.Count());
-        Assert.AreEqual("alex", (await users.Query.TakeAsync()).First().Data.Name);
+        Assert.AreEqual("alex", users.Query.Take().First().Data.Name);
     }
 
     [TestMethod]
-    public async Task Exists()
+    public void Exists()
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
-        var user = await users.AddAsync(new User
+        var user = users.Add(new User
         {
             Name = "alex"
         });
@@ -44,56 +44,56 @@ public class CollectionTest
     }
 
     [TestMethod]
-    public async Task GetByIdAsync()
+    public void GetById()
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         var id = Guid.NewGuid().ToString();
-        var doc = await users.GetByIdAsync(id);
+        var doc = users.GetById(id);
         Assert.IsNull(doc);
-        var user = await users.AddAsync(new User
+        var user = users.Add(new User
         {
             Name = "alex"
         }, new DocumentOptions
         {
             Id = id
         });
-        doc = await users.GetByIdAsync(user.Id);
+        doc = users.GetById(user.Id);
         Assert.IsNotNull(doc);
     }
 
     [TestMethod]
-    public async Task GetRequiredByIdAsync()
+    public void GetRequiredById()
     {
         var db = Database.Create();
         var users = db.GetOrCreateCollection<User>();
         var id = Guid.NewGuid().ToString();
 
-        await Assert.ThrowsExactlyAsync<DocumentNotFoundException>(async () =>
-        {
-            await users.GetRequiredByIdAsync(id);
-        });
+        Assert.ThrowsExactly<DocumentNotFoundException>(() =>
+       {
+           users.GetRequiredById(id);
+       });
 
-        var user = await users.AddAsync(new User
+        var user = users.Add(new User
         {
             Name = "alex"
         }, new DocumentOptions
         {
             Id = id
         });
-        var doc = await users.GetRequiredByIdAsync(user.Id);
+        var doc = users.GetRequiredById(user.Id);
         Assert.IsNotNull(doc);
     }
 
     [TestMethod]
-    public async Task GetByOwnerIdAsync()
+    public void GetByOwnerId()
     {
         var db = Database.Create();
         var posts = db.GetOrCreateCollection<Post>();
 
         for (int i = 0; i < 2; i++)
         {
-            await posts.AddAsync(new Post
+            posts.Add(new Post
             {
                 Title = "Hello world"
             }, new DocumentOptions
@@ -102,16 +102,16 @@ public class CollectionTest
             });
         }
 
-        var list = await posts.GetByOwnerIdAsync("id1");
+        var list = posts.GetByOwnerId("id1");
         Assert.HasCount(2, list);
     }
 
     [TestMethod]
-    public async Task UpdateAsync()
+    public void Update()
     {
         var db = Database.Create();
         var posts = db.GetOrCreateCollection<Post>();
-        var post = await posts.AddAsync(new Post
+        var post = posts.Add(new Post
         {
             Title = "Hello world"
         });
@@ -120,8 +120,8 @@ public class CollectionTest
         post.Enabled = false;
         post.Note = "world";
         post.OwnerId = "123";
-        await Task.Delay(TimeSpan.FromMilliseconds(1));
-        var result = await posts.UpdateAsync(post);
+        Thread.Sleep(TimeSpan.FromMilliseconds(1));
+        var result = posts.Update(post);
         Assert.AreEqual(post.RowId, result.RowId);
         Assert.AreEqual(post.Id, result.Id);
         Assert.AreEqual(post.CreationTime, result.CreationTime);
@@ -133,11 +133,11 @@ public class CollectionTest
     }
 
     [TestMethod]
-    public async Task Remove()
+    public void Remove()
     {
         var db = Database.Create();
         var posts = db.GetOrCreateCollection<Post>();
-        var post = await posts.AddAsync(new Post
+        var post = posts.Add(new Post
         {
             Title = "Hello world"
         });
@@ -147,13 +147,13 @@ public class CollectionTest
         Assert.IsFalse(posts.Exists(post.Id));
     }
 
-     [TestMethod]
-    public async Task EnsureIndex()
+    [TestMethod]
+    public void EnsureIndex()
     {
         var db = Database.Create();
         var posts = db.GetOrCreateCollection<Post>();
         posts.EnsureIndex("Title");
-        var post = await posts.AddAsync(new Post
+        var post = posts.Add(new Post
         {
             Title = "Hello world"
         });

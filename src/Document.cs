@@ -4,6 +4,8 @@ namespace VoidNone.NoSQLite;
 
 public class DocumentOptions
 {
+    internal static readonly DocumentOptions Default = new();
+    
     public string? Id { get; set; }
     public string? OwnerId { get; set; }
     public bool Enabled { get; set; } = true;

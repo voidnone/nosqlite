@@ -17,7 +17,7 @@ public class Connection
         InMemory = path == null;
     }
 
-    internal int Execute(string sql, IDictionary<string, object>? parameters = null)
+    public int Execute(string sql, IDictionary<string, object>? parameters = null)
     {
         using var connection = OpenConnection();
         using var command = connection.CreateCommand();

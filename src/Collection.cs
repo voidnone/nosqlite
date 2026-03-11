@@ -19,13 +19,13 @@ public class Collection<T>
 
     public virtual string Name { get; init; } = typeof(T).GetCollectionName();
 
-    public async Task<Document<T>> GetRequiredByIdAsync(string id, CancellationToken token = default)
+    public Document<T> GetRequiredById(string id)
     {
-        var result = await GetByIdAsync(id, token) ?? throw new DocumentNotFoundException(id);
+        var result = GetById(id) ?? throw new DocumentNotFoundException(id);
         return result;
     }
 
-    public async Task<Document<T>?> GetByIdAsync(string id, CancellationToken token = default)
+    public Document<T>? GetById(string id)
     {
         var parameters = new Dictionary<string, object>
         {
@@ -46,10 +46,10 @@ public class Collection<T>
         """, parameters);
         var hasValue = reader.Read();
         if (!hasValue) return null;
-        return await Collection<T>.ReadDocumentAsync(reader, token);
+        return Collection<T>.ReadDocument(reader);
     }
 
-    public async Task<Document<T>[]> GetByOwnerIdAsync(string ownerId, CancellationToken token = default)
+    public IEnumerable<Document<T>> GetByOwnerId(string ownerId)
     {
         using var dbConnection = connection.OpenConnection();
         using var command = dbConnection.CreateCommand();
@@ -69,19 +69,16 @@ public class Collection<T>
 
         command.Parameters.AddWithValue("@OwnerId", ownerId);
         using var reader = command.ExecuteReader();
-        var result = new List<Document<T>>();
 
         while (reader.Read())
         {
-            result.Add(await Collection<T>.ReadDocumentAsync(reader, token));
+            yield return Collection<T>.ReadDocument(reader);
         }
-
-        return [.. result];
     }
 
-    public Task<Document<T>> AddAsync(T data, CancellationToken token = default) => AddAsync(data, new(), token);
+    public Document<T> Add(T data) => Add(data, DocumentOptions.Default);
 
-    public async Task<Document<T>> AddAsync(T data, DocumentOptions options, CancellationToken token = default)
+    public Document<T> Add(T data, DocumentOptions options)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(options);
@@ -111,7 +108,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(dataStream, data, JsonSerializerOptions.Default, token);
+        JsonSerializer.Serialize(dataStream, data, JsonSerializerOptions.Default);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var id = options.Id ?? Guid.NewGuid().ToString("N");
         var ownerId = options.OwnerId ?? string.Empty;
@@ -140,7 +137,7 @@ public class Collection<T>
         };
     }
 
-    public async Task<Document<T>> UpdateAsync(Document<T> document, CancellationToken token = default)
+    public Document<T> Update(Document<T> document)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -160,7 +157,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(dataStream, document.Data, JsonSerializerOptions.Default, token);
+        JsonSerializer.Serialize(dataStream, document.Data, JsonSerializerOptions.Default);
         command.Parameters.AddWithValue("@RowId", document.RowId);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
@@ -255,7 +252,7 @@ public class Collection<T>
         """);
     }
 
-    internal static async Task<Document<T>> ReadDocumentAsync(SqliteDataReader reader, CancellationToken token)
+    internal static Document<T> ReadDocument(SqliteDataReader reader)
     {
         return new Document<T>
         {
@@ -266,7 +263,7 @@ public class Collection<T>
             LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(4)),
             Enabled = reader.GetBoolean(5),
             Note = reader.GetString(6),
-            Data = await JsonSerializer.DeserializeAsync<T>(reader.GetStream(7), JsonSerializerOptions.Default, token) ?? throw new DocumentDataInvalidException(),
+            Data = JsonSerializer.Deserialize<T>(reader.GetStream(7), JsonSerializerOptions.Default) ?? throw new DocumentDataInvalidException(),
         };
     }
 }

@@ -99,12 +99,12 @@ public class Query<T>
         return this;
     }
 
-    public Task<Document<T>[]> TakeAsync(CancellationToken token)
+    public IEnumerable<Document<T>> Take()
     {
-        return TakeAsync(null, token);
+        return Take(null);
     }
 
-    public async Task<Document<T>[]> TakeAsync(long? count = null, CancellationToken token = default)
+    public IEnumerable<Document<T>> Take(long? count = null)
     {
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append($"SELECT rowid as RowId,Id,OwnerId,CreationTime,LastWriteTime,Enabled,Note,");
@@ -143,26 +143,22 @@ public class Query<T>
         }
 
         using var reader = connection.Query(sqlBuilder.ToString());
-        var result = new List<Document<T>>();
 
         while (reader.Read())
         {
-            var doc = await Collection<T>.ReadDocumentAsync(reader, token);
-            result.Add(doc);
+            yield return Collection<T>.ReadDocument(reader);
         }
-
-        return [.. result];
     }
 
-    public async Task<Document<T>?> FirstOrDefaultAsync()
+    public Document<T>? FirstOrDefault()
     {
-        var result = await TakeAsync(1);
+        var result = Take(1);
         return result.FirstOrDefault();
     }
 
-    public async Task<Document<T>> FirstAsync()
+    public Document<T> First()
     {
-        var result = await FirstOrDefaultAsync();
+        var result = FirstOrDefault();
         return result ?? throw new DocumentNotFoundException();
     }
 
