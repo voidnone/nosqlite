@@ -28,7 +28,7 @@ public class QueryTest
         var db = Database.Create();
         var collection = db.GetOrCreateCollection<User>();
         collection.Add(new User { Name = "alex", Tags = ["a", "b"] });
-        var user = collection.Query.Exclude("$.Tags").FirstOrDefault();
+        var user = collection.Query.Exclude("$.tags").FirstOrDefault();
         Assert.IsNull(user!.Data.Tags);
     }
 
@@ -54,7 +54,7 @@ public class QueryTest
         {
             OwnerId = "123"
         });
-        var posts = users.Query.Where("$.Name", "alex").Take();
+        var posts = users.Query.Where("$.name", "alex").Take();
         Assert.AreEqual(1, posts.Count());
     }
 }

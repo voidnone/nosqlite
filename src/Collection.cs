@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Data.Sqlite;
 using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
@@ -46,7 +45,7 @@ public class Collection<T>
         """, parameters);
         var hasValue = reader.Read();
         if (!hasValue) return null;
-        return Collection<T>.ReadDocument(reader);
+        return reader.ReadDocument<T>();
     }
 
     public IEnumerable<Document<T>> GetByOwnerId(string ownerId)
@@ -72,7 +71,7 @@ public class Collection<T>
 
         while (reader.Read())
         {
-            yield return Collection<T>.ReadDocument(reader);
+            yield return reader.ReadDocument<T>();
         }
     }
 
@@ -108,7 +107,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        JsonSerializer.Serialize(dataStream, data, JsonSerializerOptions.Default);
+        JsonSerializer.Serialize(dataStream, data, JsonSerializerOptions.Database);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var id = options.Id ?? Guid.NewGuid().ToString("N");
         var ownerId = options.OwnerId ?? string.Empty;
@@ -157,7 +156,7 @@ public class Collection<T>
         """;
 
         var dataStream = new MemoryStream();
-        JsonSerializer.Serialize(dataStream, document.Data, JsonSerializerOptions.Default);
+        JsonSerializer.Serialize(dataStream, document.Data, JsonSerializerOptions.Database);
         command.Parameters.AddWithValue("@RowId", document.RowId);
         command.Parameters.AddWithValue("@OwnerId", document.OwnerId);
         command.Parameters.AddWithValue("@Data", dataStream.ToArray());
@@ -250,21 +249,6 @@ public class Collection<T>
         CREATE INDEX IF NOT EXISTS {Name}_Enabled_INDEX
         ON `{Name}`(Enabled);
         """);
-    }
-
-    internal static Document<T> ReadDocument(SqliteDataReader reader)
-    {
-        return new Document<T>
-        {
-            RowId = reader.GetInt64(0),
-            Id = reader.GetString(1),
-            OwnerId = reader.GetString(2),
-            CreationTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(3)),
-            LastWriteTime = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(4)),
-            Enabled = reader.GetBoolean(5),
-            Note = reader.GetString(6),
-            Data = JsonSerializer.Deserialize<T>(reader.GetStream(7), JsonSerializerOptions.Default) ?? throw new DocumentDataInvalidException(),
-        };
     }
 }
 

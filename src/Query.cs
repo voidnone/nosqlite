@@ -1,4 +1,5 @@
 using System.Text;
+using VoidNone.NoSQLite.Internal;
 
 namespace VoidNone.NoSQLite;
 
@@ -146,7 +147,7 @@ public class Query<T>
 
         while (reader.Read())
         {
-            yield return Collection<T>.ReadDocument(reader);
+            yield return reader.ReadDocument<T>();
         }
     }
 
