@@ -1,4 +1,4 @@
 <Solution>
   <Project Path="src/NoSQLite.csproj" />
-  <Project Path="tests/NoSQLite.Tests.csproj" />
+  <Project Path="test/NoSQLite.Tests.csproj" />
 </Solution>
