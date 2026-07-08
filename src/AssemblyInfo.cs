@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("VoidNone.NoSQLiteTest")]
+[assembly: InternalsVisibleTo("VoidNone.NoSQLite.Tests")]

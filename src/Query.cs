@@ -105,7 +105,7 @@ public class Query<T>
         return Take(null, token);
     }
 
-    public IEnumerable<Document<T>> Take(long? count = null, CancellationToken token = default)
+    public IEnumerable<Document<T>> Take(long? count, CancellationToken token = default)
     {
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append($"SELECT rowid as RowId,Id,OwnerId,CreationTime,LastWriteTime,Enabled,Note,");

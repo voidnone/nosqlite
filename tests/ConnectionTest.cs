@@ -1,6 +1,6 @@
 using VoidNone.NoSQLite;
 
-namespace VoidNone.NoSQLiteTest;
+namespace VoidNone.NoSQLite.Tests;
 
 [TestClass]
 public class ConnectionTest

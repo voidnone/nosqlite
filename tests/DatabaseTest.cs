@@ -1,7 +1,7 @@
 using VoidNone.NoSQLite;
 using VoidNone.NoSQLiteTest.Models;
 
-namespace VoidNone.NoSQLiteTest;
+namespace VoidNone.NoSQLite.Tests;
 
 [TestClass]
 public class DatabaseTest
